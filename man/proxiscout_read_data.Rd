@@ -47,11 +47,21 @@ This function allows the user to give the path to one or two files at once.
 
 If two file paths are given, the files are assumed to contain the spectral
 data in \code{file}, while \code{references_file} contains only the reference values.
-Both files must share a column name with respect to which the files are merged.
-If no columns match, instead both files must have a column that match with the
-following regex: \code{"^id$|^sample[ _.-]?name$|^name$|^sample[ _.-]?id$"}.
+The column used to merge the files is chosen with the following priority:
+\enumerate{
+\item A column name shared by both files that also looks like a sample
+identifier, i.e. matches the regex \code{"^id$|^sample[ _.-]?name$|^name$|^sample[ _.-]?id$"}.
+\item If no shared column name matches that regex, but each file has its own
+ID-like column (possibly under different names), those columns are used
+instead - even if the files also share other, non-ID column names (e.g. a
+\code{Date} column). This avoids merging on an incidental shared column
+when a proper sample identifier is available.
+\item If neither file has an ID-like column, the first shared column name
+(of any kind) is used as a last resort.
+\item If none of the above apply, an error is thrown.
+}
 
-Entries in these columns must coincide. If none of the entries do, potential
+Entries in the chosen columns must coincide. If none of the entries do, potential
 repetition indicators are removed (see \code{\link{proxiscout_repetition_pattern}})
 before the merge.
 

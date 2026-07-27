@@ -20,11 +20,21 @@
 #'
 #' If two file paths are given, the files are assumed to contain the spectral
 #' data in \code{file}, while \code{references_file} contains only the reference values.
-#' Both files must share a column name with respect to which the files are merged.
-#' If no columns match, instead both files must have a column that match with the
-#' following regex: \code{"^id$|^sample[ _.-]?name$|^name$|^sample[ _.-]?id$"}.
+#' The column used to merge the files is chosen with the following priority:
+#' \enumerate{
+#'   \item A column name shared by both files that also looks like a sample
+#'   identifier, i.e. matches the regex \code{"^id$|^sample[ _.-]?name$|^name$|^sample[ _.-]?id$"}.
+#'   \item If no shared column name matches that regex, but each file has its own
+#'   ID-like column (possibly under different names), those columns are used
+#'   instead - even if the files also share other, non-ID column names (e.g. a
+#'   \code{Date} column). This avoids merging on an incidental shared column
+#'   when a proper sample identifier is available.
+#'   \item If neither file has an ID-like column, the first shared column name
+#'   (of any kind) is used as a last resort.
+#'   \item If none of the above apply, an error is thrown.
+#' }
 #' 
-#' Entries in these columns must coincide. If none of the entries do, potential
+#' Entries in the chosen columns must coincide. If none of the entries do, potential
 #' repetition indicators are removed (see \code{\link{proxiscout_repetition_pattern}})
 #' before the merge.
 #'
@@ -126,24 +136,28 @@ proxiscout_read_data <- function(file, references_file) {
     } else {
       stop(paste("Unsupported file format for reference file:", ref_ext))
     }
-    # Identify the column to use for merging the files. Prefer a common column
-    # name that also looks like a sample identifier; if none of the common
-    # columns look like an ID, fall back to the first common column.
+    # Identify the column to use for merging the files. An ID-like column
+    # always takes priority over an incidental common column (e.g. "Date"),
+    # whether that ID-like column shares its name across files or not, so
+    # that files are never silently merged on the wrong key.
     common_cols <- intersect(colnames(x), colnames(refs))
-    merge_col <- NULL
-    if (length(common_cols) >= 1) {
-      id_common_cols <- common_cols[grepl(id_regex, common_cols, ignore.case = TRUE)]
-      merge_col <- if (length(id_common_cols) >= 1) id_common_cols[1] else common_cols[1]
-    }
+    id_common_cols <- common_cols[grepl(id_regex, common_cols, ignore.case = TRUE)]
+    merge_col <- if (length(id_common_cols) >= 1) id_common_cols[1] else NULL
     if (!is.null(merge_col)) {
       x_sample_col <- which(colnames(x) == merge_col)[1]
       refs_sample_col <- which(colnames(refs) == merge_col)[1]
     } else if (any(grepl(id_regex, colnames(x), ignore.case = TRUE)) &&
                any(grepl(id_regex, colnames(refs), ignore.case = TRUE))) {
-      # No common column names; fall back to detecting an ID-like column
-      # independently in each file (the ID column names may differ).
+      # No common ID-like column name; fall back to detecting an ID-like
+      # column independently in each file (the ID column names may differ).
       x_sample_col <- grep(id_regex, colnames(x), ignore.case = TRUE) |> head(1)
       refs_sample_col <- grep(id_regex, colnames(refs), ignore.case = TRUE) |> head(1)
+    } else if (length(common_cols) >= 1) {
+      # No ID-like column detected in either file; fall back to the first
+      # common column as a last resort.
+      merge_col <- common_cols[1]
+      x_sample_col <- which(colnames(x) == merge_col)[1]
+      refs_sample_col <- which(colnames(refs) == merge_col)[1]
     } else {
       # Otherwise, throw an error - we do not know how we can merge those files
       stop("No common column names or sample ID columns detected across files for merging the files")

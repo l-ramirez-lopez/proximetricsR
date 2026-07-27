@@ -214,6 +214,25 @@ test_that("two-file merge: falls back to id-regex detection when no common colum
   expect_equal(result$moisture, c(1, 2, 3))
 })
 
+test_that("two-file merge: prefers independently-named id-like columns over an incidental shared non-id column", {
+  x3b <- data.frame(
+    SampleName = c("A", "B", "C"),
+    Date = c("2024-01-01", "2024-01-02", "2024-01-03"),
+    "3921" = c(50.1, 48.3, 47.0),
+    "3942" = c(51.2, 49.1, 48.5),
+    check.names = FALSE
+  )
+  refs3b <- data.frame(
+    SampleID = c("A", "B", "C"),
+    Date = c("2024-02-01", "2024-02-02", "2024-02-03"),
+    moisture = c(1, 2, 3)
+  )
+  result <- proxiscout_read_data(write_spec_csv(x3b), write_spec_csv(refs3b))
+
+  expect_equal(nrow(result), 3L)
+  expect_equal(result$moisture, c(1, 2, 3))
+})
+
 test_that("two-file merge: supports a mixture of repeated and non-repeated sample ids", {
   x4 <- data.frame(
     SampleID = c("A_1", "B", "C_2"),

@@ -335,7 +335,9 @@ plot.spectral_model <- function(
     )
   }
   # Check for scales package; required for the plots.
-  requireNamespace("scales", quietly = TRUE)
+  if (!requireNamespace("scales", quietly = TRUE)) {
+    stop("Package 'scales' is required for plotting. Please install it.")
+  }
 
   if (is.null(output_dir)) output_dir <- tempdir()
   out_path <- file.path(output_dir, paste0(output_file, ".html"))
