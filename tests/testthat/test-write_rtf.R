@@ -70,7 +70,7 @@ test_that("Writing report files works on refitted models without validation", {
   method <- fit_plsr(3)
   expect_warning(
     control <- calibration_control(
-      validation_type = "none", remove_outliers = 0, mahalanobis_limit = 3.0
+      validation_type = "none", remove_outliers = 1, mahalanobis_limit = 3.0
     )
   )
   pretreats <- preprocess_recipe(
