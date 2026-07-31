@@ -262,6 +262,7 @@ proxiscout_repetition_pattern <- function() {
 #'
 #' @author Claudio Orellano
 #' @keywords internal
+#' @noRd
 add_regex_col <- function(data, regex, x) {
   # Return x if the regex does not appear
   if (!any(grepl(regex, colnames(data), ignore.case = TRUE))) return(x)
