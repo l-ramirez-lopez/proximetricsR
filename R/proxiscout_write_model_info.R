@@ -100,12 +100,14 @@ proxiscout_write_model_info <- function(object, n_measurements = 1L, file = NULL
 
 #' @title Check that a numeric value is finite and non-zero
 #' @keywords internal
+#' @noRd
 valid_nonzero <- function(x) {
   isTRUE(length(x) == 1L) && is.finite(x) && abs(x) > 0
 }
 
 #' @title Returns 0 if `x` is not of length 1 or `is.finite(x)` returns `FALSE`
 #' @keywords internal
+#' @noRd
 zero_if_invalid <- function(x) {
   if (length(x) == 1L && is.finite(x)) return(x)
   return(0)
