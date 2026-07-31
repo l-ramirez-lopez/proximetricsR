@@ -11,7 +11,7 @@ status](https://www.r-pkg.org/badges/version/proximetricsR?v=2.png)](https://CRA
 
 *Last update: 2026-07-31*
 
-Version: 0.6.6 – Matterhorn2
+Version: 0.7.0 – Matterhorn2
 
 ## About
 
