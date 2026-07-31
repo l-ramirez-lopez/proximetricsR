@@ -98,7 +98,8 @@ A typical example dataset for a ProxiMate device can be found in:
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://buchi-labortechnik-ag.github.io/proximetricsR/https://github.com/l-ramirez-lopez/proximetricsr}
+  \item \url{https://proximetricsr.r.packages.buchi-nir.io/}
+  \item \url{https://github.com/buchi-labortechnik-ag/proximetricsr/}
   \item Report bugs at \url{https://github.com/buchi-labortechnik-ag/proximetricsr/issues}
 }
 
