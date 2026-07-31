@@ -18,7 +18,8 @@
 #'   regression = NULL,
 #'   validation = if (!is.null(validations)) "all" else NULL,
 #'   sample_group = NULL,
-#'   verbose = TRUE, open_file = TRUE, ...)
+#'   verbose = TRUE, open_file = TRUE, ...
+#'  )
 #'
 #' @param x an object of class \code{"spectral_model"}. This model should be
 #' generated using the \code{\link{calibrate}} function.
