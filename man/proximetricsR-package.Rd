@@ -10,7 +10,7 @@ NIR calibration and application tools for BUCHI ProxiMate and ProxiScout devices
 \if{html}{\figure{logo.png}{options: style = 'float: right;' alt = 'logo' width = '120'}}
 }
 \details{
-This is package version 0.6.5 (Matterhorn2).
+This is package version 0.7.0 (Matterhorn2).
 
 This package provides \code{R} functions for spectral pre-processing, NIR
 model calibration, and reading/writing files for BUCHI ProxiMate and
@@ -98,7 +98,8 @@ A typical example dataset for a ProxiMate device can be found in:
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://buchi-labortechnik-ag.github.io/proximetricsR/https://github.com/l-ramirez-lopez/proximetricsr}
+  \item \url{https://proximetricsr.r.packages.buchi-nir.io/}
+  \item \url{https://github.com/buchi-labortechnik-ag/proximetricsr/}
   \item Report bugs at \url{https://github.com/buchi-labortechnik-ag/proximetricsr/issues}
 }
 

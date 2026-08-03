@@ -13,6 +13,7 @@ gen_plot_from_model <- function(object, validations) {
       cv = "all",
       regression = "all",
       validation = "all",
+      sample_group = list("Batch A" = 1:100, "Batch B" = 1:100),
       marker = list(color = "red", symbol = 300, opacity = 0.9),
       line = list(color = "green", width = 1, simplify = TRUE),
       hoverinfo = list(bgcolor = "gray", bordercolor = "red"),

@@ -1,3 +1,13 @@
+proximetricsR 0.7.0 "Matterhorn2"
+===============
+* Feat: `proximate_read_data()` now automatically detects and handles UTF-8 vs Windows-1252/ANSI encoded TSV files, ensuring correct decoding of special characters in metadata regardless of locale.
+* Feat: improved merging logic in `proxiscout_read_data()` for spectral and reference files, with more robust column matching and documented support for repetition groups via the `.repetition_group` column.
+* Feat: `plot.spectral_model()` gained a new `sample_group` argument to colour plots by sample group. `scales` added to Imports.
+* Feat: added and exported `proxiscout_write_model_info()`, which writes model metadata to JSON.
+* Fix: `calibrate_models()` no longer reconstructs formulas from strings, using the original list instead, improving accuracy and robustness.
+* Misc: updated package logo.
+
+
 proximetricsR 0.6.5
 ===============
 
