@@ -94,8 +94,13 @@ validate_prediction <- function(prediction, reference) {
     )
     max_res <- matrix(apply(pred_resid, MARGIN = 2, FUN = function(x) x[which.max(abs(x))]), ncol = 1)
 
-    val_results <- cbind(prediction$predictions[, i, drop = FALSE], pred_resid)
-    colnames(val_results) <- c("y_hat", "error")
+    val_results <- cbind(
+      prediction$predictions[, i, drop = FALSE],
+      pred_resid,
+      prediction$mahalanobis[, i, drop = FALSE],
+      prediction$q_residual[, i, drop = FALSE]
+    )
+    colnames(val_results) <- c("y_hat", "error", "mahalanobis", "q_residual")
     validation[[colnames(drop_na_preds)[i]]] <- list(
       val_results = val_results,
       val_stats = c(rsq = rsq, rmse = rmse, max_res = max_res)

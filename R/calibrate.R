@@ -1069,9 +1069,26 @@ predict.spectral_model <- function(
 
   scores <- new_data %*% t(object$final_model$model$projection_m)
   rownames(scores) <- rownames(predictions)
+
+  scaled_scores <- sweep(scores, MARGIN = 2, STATS = object$final_model$model$sd_scores, FUN = "/")
+  mahalanobis <- .gh_distance(
+    x = scaled_scores,
+    reference = object$final_model$model$scaled_scores,
+    ncomp = ncomp
+  )
+  dimnames(mahalanobis) <- dimnames(predictions)
+
+  q_residual <- vapply(ncomp, FUN.VALUE = numeric(nrow(new_data)), FUN = function(nc) {
+    x_hat <- scores[, 1:nc, drop = FALSE] %*% object$final_model$model$x_loadings[1:nc, , drop = FALSE]
+    rowSums((new_data - x_hat)^2)
+  })
+  dimnames(q_residual) <- dimnames(predictions)
+
   results <- list(
     predictions = predictions,
     scores = scores,
+    mahalanobis = mahalanobis,
+    q_residual = q_residual,
     model_information = model_information
   )
   class(results) <- c("spectral_prediction", "list")

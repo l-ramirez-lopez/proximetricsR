@@ -60,6 +60,52 @@ test_that("Plots can be made from a spectral_model", {
   expect_true(file.exists(gen_plot_from_model(test_model, validations)))
 })
 
+##############################
+# GROUP PARAMETER VALIDATION #
+##############################
+
+test_that(".validate_group_param accepts a valid named list unchanged", {
+  grp <- list("Batch A" = 1:3, "Batch B" = 4:6)
+  expect_identical(proximetricsR:::.validate_group_param(grp, "sample_group"), grp)
+})
+
+test_that(".validate_group_param passes through NULL without warning", {
+  expect_no_warning(proximetricsR:::.validate_group_param(NULL, "sample_group"))
+  expect_null(proximetricsR:::.validate_group_param(NULL, "sample_group"))
+})
+
+test_that(".validate_group_param rejects an unnamed list", {
+  expect_warning(
+    result <- proximetricsR:::.validate_group_param(list(1:3), "validation_group"),
+    "'validation_group' should be a named list"
+  )
+  expect_null(result)
+})
+
+test_that(".validate_group_param rejects duplicated group names", {
+  expect_warning(
+    result <- proximetricsR:::.validate_group_param(list(A = 1:3, A = 4:6), "validation_group"),
+    "duplicated group names"
+  )
+  expect_null(result)
+})
+
+test_that(".validate_group_param rejects non-numeric indices", {
+  expect_warning(
+    result <- proximetricsR:::.validate_group_param(list(A = c("1", "2")), "validation_group"),
+    "non-numeric sample indices"
+  )
+  expect_null(result)
+})
+
+test_that(".validate_group_param rejects duplicated indices across groups", {
+  expect_warning(
+    result <- proximetricsR:::.validate_group_param(list(A = 1:3, B = 3:5), "validation_group"),
+    "duplicated sample indices"
+  )
+  expect_null(result)
+})
+
 #################
 # SANITY CHECKS #
 #################

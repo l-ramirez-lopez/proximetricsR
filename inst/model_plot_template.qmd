@@ -12,6 +12,7 @@ params:
   validations_path: NULL
   selection: NULL
   sample_group: NULL
+  validation_group: NULL
   graph_params: NULL
   subtitle: ""
 ---
@@ -155,6 +156,33 @@ if (length(given_params) > 0) {
 
 validations <- if (!is.null(params$validations_path)) readRDS(params$validations_path) else NULL
 val_refs <- validations$reference
+
+# Map validation group indices to positions within the validation set
+validation_group <- params$validation_group
+val_group_factor <- NULL
+has_val_group <- FALSE
+val_group_colors <- NULL
+if (!is.null(val_refs)) {
+  n_val_obs <- nrow(val_refs)
+  val_group_factor <- rep(NA_character_, n_val_obs)
+  for (g in names(validation_group)) {
+    idx <- which(seq_len(n_val_obs) %in% validation_group[[g]])
+    val_group_factor[idx] <- g
+  }
+  val_group_factor <- factor(val_group_factor, levels = names(validation_group))
+  has_val_group <- !all(is.na(val_group_factor))
+
+  if (has_val_group) {
+    other_label <- if ("Other" %in% levels(val_group_factor)) "Other (ungrouped)" else "Other"
+    levels(val_group_factor) <- c(levels(val_group_factor), other_label)
+    val_group_factor[is.na(val_group_factor)] <- other_label
+    val_group_factor <- droplevels(val_group_factor)
+    val_group_colors <- setNames(
+      scales::hue_pal()(length(levels(val_group_factor))),
+      levels(val_group_factor)
+    )
+  }
+}
 
 plotly_build2 <- function(...) {
   p <- plotly_build(...)
@@ -2211,10 +2239,11 @@ if (val_selection[1]) cat("### Predicted vs. Reference\n\n")
 #| eval: !expr val_selection[1]
 n_vals <- length(validations$validation)
 refs <- validations$reference
+n_val_groups <- if (has_val_group) length(levels(val_group_factor)) else 1L
+n_marker_traces <- if (has_val_group) n_vals * n_val_groups else n_vals
 fig <- plot_ly()
 for (i in seq_len(n_vals)) {
   preds <- as.matrix(validations$validation[[i]]$val_results[, "y_hat"])
-  error <- as.matrix(validations$validation[[i]]$val_results[, "error"])
   line_x_y <- seq(
     from = min(preds, refs, na.rm = TRUE),
     to = max(preds, refs, na.rm = TRUE),
@@ -2238,7 +2267,6 @@ for (i in seq_len(n_vals)) {
 }
 for (i in seq_len(n_vals)) {
   preds <- as.matrix(validations$validation[[i]]$val_results[, "y_hat"])
-  error <- as.matrix(validations$validation[[i]]$val_results[, "error"])
   line_x_y <- seq(
     from = min(preds, refs, na.rm = TRUE),
     to = max(preds, refs, na.rm = TRUE),
@@ -2258,21 +2286,42 @@ for (i in seq_len(n_vals)) {
   )
 }
 for (i in seq_len(n_vals)) {
-  preds <- as.matrix(validations$validation[[i]]$val_results[, "y_hat"])
-  error <- as.matrix(validations$validation[[i]]$val_results[, "error"])
-  fig <- fig |> add_markers(
-    x = as.vector(refs),
-    y = as.vector(preds),
-    visible = (i == 1),
-    hovertext = paste("Observation", rownames(preds)),
-    showlegend = FALSE,
-    marker = list(color = colrs[i]),
-    hoverinfo = "x+y+text",
-    type = "scatter",
-    mode = "markers"
-  )
+  preds <- as.vector(as.matrix(validations$validation[[i]]$val_results[, "y_hat"]))
+  if (has_val_group) {
+    for (gi in seq_along(levels(val_group_factor))) {
+      g <- levels(val_group_factor)[gi]
+      idx <- which(val_group_factor == g)
+      fig <- fig |> add_markers(
+        x = as.vector(refs)[idx],
+        y = preds[idx],
+        visible = (i == 1),
+        hovertext = paste("Observation", rownames(validations$validation[[i]]$val_results)[idx]),
+        name = g,
+        legendgroup = g,
+        legendrank = gi,
+        showlegend = TRUE,
+        marker = list(color = val_group_colors[[g]]),
+        hoverinfo = "x+y+text",
+        type = "scatter",
+        mode = "markers"
+      )
+    }
+  } else {
+    fig <- fig |> add_markers(
+      x = as.vector(refs),
+      y = preds,
+      visible = (i == 1),
+      hovertext = paste("Observation", rownames(validations$validation[[i]]$val_results)),
+      showlegend = FALSE,
+      marker = list(color = colrs[i]),
+      hoverinfo = "x+y+text",
+      type = "scatter",
+      mode = "markers"
+    )
+  }
 }
 for (i in seq_len(n_vals)) {
+  preds <- as.matrix(validations$validation[[i]]$val_results[, "y_hat"])
   line_x_y <- seq(
     from = min(preds, refs, na.rm = TRUE),
     to = max(preds, refs, na.rm = TRUE),
@@ -2315,16 +2364,25 @@ fig <- fig |>
     yaxis = list(title = "Predicted Reference", titlefont = list(color = "#7f7f7f"))
   )
 if (n_vals > 1) {
+  n_traces_total <- n_vals + n_vals + n_marker_traces + n_vals
   val_steps <- list()
   for (i in seq_len(n_vals)) {
-    step <- list(
-      args = list("visible", rep(FALSE, n_vals)),
+    vis <- rep(FALSE, n_traces_total)
+    vis[i] <- TRUE
+    vis[n_vals + i] <- TRUE
+    if (has_val_group) {
+      marker_start <- 2 * n_vals + (i - 1) * n_val_groups + 1
+      vis[marker_start:(marker_start + n_val_groups - 1)] <- TRUE
+    } else {
+      vis[2 * n_vals + i] <- TRUE
+    }
+    vis[2 * n_vals + n_marker_traces + i] <- TRUE
+    val_steps[[i]] <- list(
+      args = list("visible", vis),
       method = "restyle",
       label = names(validations$validation)[i],
       value = as.character(i)
     )
-    step$args[[2]][i] <- TRUE
-    val_steps[[i]] <- step
   }
   val_sliders <- list(list(
     currentvalue = list(
@@ -2336,6 +2394,104 @@ if (n_vals > 1) {
     pad = list(t = 50, r = 50, b = 0, l = 50)
   ))
   fig <- fig |> layout(sliders = val_sliders)
+}
+plotly_build2(fig)
+```
+
+
+```{r}
+#| output: asis
+if (val_selection[2]) cat("### Leverage vs. Spectral Residual\n\n")
+```
+
+```{r}
+#| eval: !expr val_selection[2]
+n_vals <- length(validations$validation)
+n_val_groups <- if (has_val_group) length(levels(val_group_factor)) else 1L
+fig <- plot_ly()
+for (i in seq_len(n_vals)) {
+  nc_label <- names(validations$validation)[i]
+  leverage_i <- as.vector(validations$validation[[i]]$val_results[, "mahalanobis"])
+  q_i <- validations$validation[[i]]$val_results[, "q_residual"]
+  q_ref <- mean(final_model$model$x_residuals[, nc_label])
+  y_i <- as.vector(q_i / q_ref)
+  if (has_val_group) {
+    for (gi in seq_along(levels(val_group_factor))) {
+      g <- levels(val_group_factor)[gi]
+      idx <- which(val_group_factor == g)
+      fig <- fig |> add_markers(
+        x = leverage_i[idx],
+        y = y_i[idx],
+        visible = (i == 1),
+        hovertext = paste("Observation", rownames(validations$validation[[i]]$val_results)[idx]),
+        name = g,
+        legendgroup = g,
+        legendrank = gi,
+        showlegend = TRUE,
+        marker = list(color = val_group_colors[[g]]),
+        hoverinfo = "x+y+text",
+        type = "scatter",
+        mode = "markers"
+      )
+    }
+  } else {
+    fig <- fig |> add_markers(
+      x = leverage_i,
+      y = y_i,
+      visible = (i == 1),
+      hovertext = paste("Observation", rownames(validations$validation[[i]]$val_results)),
+      showlegend = FALSE,
+      marker = list(color = colrs[i]),
+      hoverinfo = "x+y+text",
+      type = "scatter",
+      mode = "markers"
+    )
+  }
+}
+
+fig <- fig |>
+  layout(
+    xaxis = list(title = "Leverage (Mahalanobis)", titlefont = list(color = "#7f7f7f")),
+    yaxis = list(title = "Spectral Residual Q", titlefont = list(color = "#7f7f7f")),
+    shapes = list(
+      list(
+        type = "line", x0 = 0, x1 = 0, y0 = 0, y1 = 1, yref = "paper",
+        line = list(width = 1, color = "grey")
+      ),
+      list(
+        type = "line", x0 = 0, x1 = 1, xref = "paper", y0 = 0, y1 = 0,
+        line = list(width = 1, color = "grey")
+      )
+    )
+  )
+if (n_vals > 1) {
+  n_marker_traces <- if (has_val_group) n_vals * n_val_groups else n_vals
+  val_steps2 <- list()
+  for (i in seq_len(n_vals)) {
+    vis <- rep(FALSE, n_marker_traces)
+    if (has_val_group) {
+      marker_start <- (i - 1) * n_val_groups + 1
+      vis[marker_start:(marker_start + n_val_groups - 1)] <- TRUE
+    } else {
+      vis[i] <- TRUE
+    }
+    val_steps2[[i]] <- list(
+      args = list("visible", vis),
+      method = "restyle",
+      label = names(validations$validation)[i],
+      value = as.character(i)
+    )
+  }
+  val_sliders2 <- list(list(
+    currentvalue = list(
+      prefix = "",
+      font = list(color = "black", xanchor = "left")
+    ),
+    active = 0,
+    steps = val_steps2,
+    pad = list(t = 50, r = 50, b = 0, l = 50)
+  ))
+  fig <- fig |> layout(sliders = val_sliders2)
 }
 plotly_build2(fig)
 ```

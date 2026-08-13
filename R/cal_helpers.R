@@ -1,3 +1,32 @@
+#' @title Computes the Mahalanobis (GH) distance from scaled PLS scores
+#' @description
+#' Computes the squared Mahalanobis distance of each row of \code{x} to the
+#' origin, using the covariance matrix estimated from \code{reference},
+#' normalized by the number of components used. The origin represents the
+#' center of the calibration score space. For calibration statistics,
+#' \code{x} and \code{reference} are the same (calibration) scaled scores. For
+#' new/prediction samples, \code{reference} must be the calibration model's
+#' scaled scores, so that the covariance is estimated from the calibration set
+#' and merely applied to (possibly few) prediction samples, rather than
+#' re-estimated from them.
+#' @param x a matrix of scores scaled by their calibration standard
+#' deviations, for which the distance is computed.
+#' @param reference a matrix of scores scaled by their calibration standard
+#' deviations, used to estimate the covariance matrix. Typically the
+#' calibration model's scaled scores.
+#' @param ncomp a vector of component counts to compute the distance for.
+#' @return A matrix with one row per sample and one column per entry in \code{ncomp}.
+#' @keywords internal
+.gh_distance <- function(x, reference, ncomp) {
+  get_diss <- function(factors) {
+    ref <- reference[, 1:factors, drop = FALSE]
+    obs <- x[, 1:factors, drop = FALSE]
+    stats::mahalanobis(obs, center = rep(0, factors), cov = cov(ref))
+  }
+
+  sweep(sapply(ncomp, FUN = get_diss), MARGIN = 2, STATS = ncomp, FUN = "/")
+}
+
 #' @title Computes the NIRWise QVAL statistic
 #' @description
 #' QVAL indicates how different the predicted response variable (y) in
@@ -32,22 +61,7 @@
     cv_residual <- q_value <- NULL
   }
 
-  ## convert from Euclidean space to the Mahalanobis space
-  scaled_scores <- eval(parse(text = "prospectr:::e2m(scaled_scores)"))
-  center_scores <- matrix(0, 1, ncol(scaled_scores))
-
-  get_diss <- function(x, center, factors) {
-    t(eval(parse(text = 'prospectr:::fastDist(
-      x[, 1:factors, drop = FALSE],
-      center[, 1:factors, drop = FALSE],
-      "euclid")')))
-  }
-
-  gh <- sweep(sapply(ncomp, FUN = get_diss, x = scaled_scores, center = center_scores),
-    MARGIN = 2,
-    STATS = ncomp,
-    FUN = "/"
-  )
+  gh <- .gh_distance(x = scaled_scores, reference = scaled_scores, ncomp)
 
   # rownames(gh) <- rownames(scaled_scores)
   calibration_results <- list(

@@ -30,6 +30,18 @@ test_that("The validation results are correct", {
   expect_snapshot(val$validation)
 })
 
+test_that("The Mahalanobis distance is carried over from the prediction into the validation results", {
+  for (i in seq_along(val$validation)) {
+    expect_identical(val$validation[[i]]$val_results[, "mahalanobis"], pred1$mahalanobis[, i])
+  }
+})
+
+test_that("The spectral (Q) residual is carried over from the prediction into the validation results", {
+  for (i in seq_along(val$validation)) {
+    expect_identical(val$validation[[i]]$val_results[, "q_residual"], pred1$q_residual[, i])
+  }
+})
+
 test_that("Not available target values are correctly ignored", {
   Y_new <- matrix(c(NIRcannabis$THCA[1:5], rep(NA, 5)))
   colnames(Y_new) <- "THCA"
