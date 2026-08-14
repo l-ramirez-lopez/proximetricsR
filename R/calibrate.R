@@ -1041,7 +1041,7 @@ predict.spectral_model <- function(
     newdata <- newdata[[all.vars(object$formula)[-1]]]
   }
 
-  new_data <- scale(newdata[, object$predictor_variables], center = object$final_model$model$x_means, FALSE)
+  new_data <- scale(newdata[, object$predictor_variables, drop = FALSE], center = object$final_model$model$x_means, FALSE)
   relevant_coefs <- object$final_model$model$coefficients[ncomp, , drop = FALSE]
 
 
@@ -1069,9 +1069,32 @@ predict.spectral_model <- function(
 
   scores <- new_data %*% t(object$final_model$model$projection_m)
   rownames(scores) <- rownames(predictions)
+
+  scaled_scores <- sweep(scores, MARGIN = 2, STATS = object$final_model$model$sd_scores, FUN = "/")
+  mahalanobis <- .gh_distance(
+    x = scaled_scores,
+    reference = object$final_model$model$scaled_scores,
+    ncomp = ncomp
+  )
+  dimnames(mahalanobis) <- dimnames(predictions)
+
+  q_residual <- matrix(
+    unlist(
+      lapply(ncomp, FUN = function(nc) {
+        x_hat <- scores[, 1:nc, drop = FALSE] %*% object$final_model$model$x_loadings[1:nc, , drop = FALSE]
+        rowSums((new_data - x_hat)^2)
+      }),
+      use.names = FALSE
+    ),
+    nrow = nrow(new_data), ncol = length(ncomp)
+  )
+  dimnames(q_residual) <- dimnames(predictions)
+
   results <- list(
     predictions = predictions,
     scores = scores,
+    mahalanobis = mahalanobis,
+    q_residual = q_residual,
     model_information = model_information
   )
   class(results) <- c("spectral_prediction", "list")

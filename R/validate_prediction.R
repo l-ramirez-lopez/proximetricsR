@@ -56,6 +56,9 @@ validate_prediction <- function(prediction, reference) {
   if (!"spectral_prediction" %in% class(prediction)) {
     stop("Parameter 'prediction' must be of class 'spectral_prediction'.")
   }
+  if (is.null(prediction$mahalanobis) || is.null(prediction$q_residual)) {
+    stop("'prediction' is missing 'mahalanobis' and/or 'q_residual'. ")
+  }
   if (all(is.na(reference))) {
     stop("'reference' only contains 'NA' values.")
   }
@@ -94,8 +97,13 @@ validate_prediction <- function(prediction, reference) {
     )
     max_res <- matrix(apply(pred_resid, MARGIN = 2, FUN = function(x) x[which.max(abs(x))]), ncol = 1)
 
-    val_results <- cbind(prediction$predictions[, i, drop = FALSE], pred_resid)
-    colnames(val_results) <- c("y_hat", "error")
+    val_results <- cbind(
+      prediction$predictions[, i, drop = FALSE],
+      pred_resid,
+      prediction$mahalanobis[, i, drop = FALSE],
+      prediction$q_residual[, i, drop = FALSE]
+    )
+    colnames(val_results) <- c("y_hat", "error", "mahalanobis", "q_residual")
     validation[[colnames(drop_na_preds)[i]]] <- list(
       val_results = val_results,
       val_stats = c(rsq = rsq, rmse = rmse, max_res = max_res)

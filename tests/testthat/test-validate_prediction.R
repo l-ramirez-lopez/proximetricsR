@@ -30,6 +30,18 @@ test_that("The validation results are correct", {
   expect_snapshot(val$validation)
 })
 
+test_that("The Mahalanobis distance is carried over from the prediction into the validation results", {
+  for (i in seq_along(val$validation)) {
+    expect_identical(val$validation[[i]]$val_results[, "mahalanobis"], pred1$mahalanobis[, i])
+  }
+})
+
+test_that("The spectral (Q) residual is carried over from the prediction into the validation results", {
+  for (i in seq_along(val$validation)) {
+    expect_identical(val$validation[[i]]$val_results[, "q_residual"], pred1$q_residual[, i])
+  }
+})
+
 test_that("Not available target values are correctly ignored", {
   Y_new <- matrix(c(NIRcannabis$THCA[1:5], rep(NA, 5)))
   colnames(Y_new) <- "THCA"
@@ -59,6 +71,22 @@ test_that("Validations are correctly printed if original model grid missing", {
 
 test_that("Provided prediction must be of class 'spectral_prediction'", {
   expect_error(validate_prediction(pred1$predictions, NIRcannabisTHCA[1:10]), "Parameter 'prediction' must be of class 'spectral_prediction'.")
+})
+
+test_that("Prediction missing 'mahalanobis' or 'q_residual' (e.g. from an older package version) errors clearly", {
+  pred_no_mahal <- pred1
+  pred_no_mahal$mahalanobis <- NULL
+  expect_error(
+    validate_prediction(pred_no_mahal, NIRcannabis$THCA[1:10]),
+    "missing 'mahalanobis' and/or 'q_residual'"
+  )
+
+  pred_no_q <- pred1
+  pred_no_q$q_residual <- NULL
+  expect_error(
+    validate_prediction(pred_no_q, NIRcannabis$THCA[1:10]),
+    "missing 'mahalanobis' and/or 'q_residual'"
+  )
 })
 
 test_that("Entries in reference must be numerical", {

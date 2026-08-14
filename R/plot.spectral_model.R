@@ -18,6 +18,7 @@
 #'   regression = NULL,
 #'   validation = if (!is.null(validations)) "all" else NULL,
 #'   sample_group = NULL,
+#'   validation_group = NULL,
 #'   verbose = TRUE, open_file = TRUE, ...
 #'  )
 #'
@@ -49,11 +50,16 @@
 #' \code{"leverage"}.
 #' @param validation a character vector of validation plots to include,
 #' \code{"all"} to include every validation plot, or \code{NULL} to skip.
-#' Available names: \code{"predicted_vs_reference"}. Defaults to \code{"all"}
-#' when \code{validations} is supplied, \code{NULL} otherwise.
+#' Available names: \code{"predicted_vs_reference"}, \code{"leverage_vs_residual"}.
+#' Defaults to \code{"all"} when \code{validations} is supplied, \code{NULL} otherwise.
 #' @param sample_group a named list of samples that should have the same color.
 #' See details. Default is \code{NULL}, meaning no grouping is done. Note that this
 #' is only to distinguish samples for the plots; the model itself remains unchanged.
+#' @param validation_group a named list of validation samples that should have the
+#' same color, analogous to \code{sample_group} but for the plots in the
+#' \code{validation} section. Indices refer to the position of each sample within
+#' the validation set (as returned by \code{\link{validate_prediction}}), not to
+#' calibration sample indices. Default is \code{NULL}, meaning no grouping is done.
 #' @param verbose a logical. When \code{TRUE} (default), prints the path of the
 #' generated file. Pandoc output is always suppressed.
 #' @param open_file a logical, indicating whether the file should automatically
@@ -172,6 +178,13 @@
 #'     of both the validated predictions and model is depicted. See
 #'     \code{\link{validate_prediction}} and \code{\link[=predict.spectral_model]{predict}} for more details on the
 #'     prediction and validation process.
+#'     \item {\strong{Leverage vs. Spectral Residual*}:} A points plot of the
+#'     Mahalanobis distance (leverage) of each validated sample against its
+#'     spectral (X-space) residual, normalized by the calibration set's own
+#'     average residual for the same number of components. Not to be confused
+#'     with the \strong{Leverage vs Residuals} plot in the \code{regression}
+#'     section, which uses the classical (univariate) leverage of the fitted
+#'     response instead.
 #'     }
 #'
 #' Most of above plots contain a slider, which may be used to adjust the considered
@@ -188,7 +201,12 @@
 #' different instruments. Each sample must belong to a single group, otherwise,
 #' this argument is ignored. Indices refer to the sample indices in the calibration
 #' statistics in the model.
-#' 
+#'
+#' The parameter \code{validation_group} works analogously, but for the plots in
+#' the \code{validation} section. Since validation samples are not part of the
+#' calibration set, indices instead refer to the position of a sample within the
+#' validation set (as returned by \code{\link{validate_prediction}}).
+#'
 #' \strong{Additional parameters for graphics}
 #'
 #' The plots are constructed with the help of the plotly package. As such,
@@ -249,7 +267,9 @@
 #' # Make predictions and validate
 #' preds <- predict(my_model, NIRcannabis[skips, ])
 #' validations <- validate_prediction(preds, NIRcannabis$CBDA[skips])
-#' # Plot validation section only
+#' # Plot validation section only, grouping validation samples by instrument.
+#' # Indices in validation_group refer to the position of a sample within the
+#' # validation set (i.e. within 'skips'), not to calibration sample indices.
 #' plot(
 #'   my_model,
 #'   output_dir = tempdir(),
@@ -257,7 +277,11 @@
 #'   validations = validations,
 #'   spectral = NULL,
 #'   cv = NULL,
-#'   regression = NULL
+#'   regression = NULL,
+#'   validation_group = list(
+#'     "Instrument A" = 1:2, # rows 5 and 13 of NIRcannabis (skips[1:2])
+#'     "Instrument B" = 3:4 # rows 21 and 73 of NIRcannabis (skips[3:4])
+#'   )
 #' )
 #' }
 #' @return NULL. The desired plots are opened in a browser window.
@@ -277,6 +301,7 @@ plot.spectral_model <- function(
   regression = NULL,
   validation = if (!is.null(validations)) "all" else NULL,
   sample_group = NULL,
+  validation_group = NULL,
   verbose = TRUE,
   open_file = TRUE,
   ...
@@ -292,29 +317,9 @@ plot.spectral_model <- function(
       )
     }
   }
-  # Sample group validation
-  if (!is.null(sample_group)) {
-    if (!is.list(sample_group) || is.null(names(sample_group))) {
-      warning("'sample_group' should be a named list.")
-      sample_group <- NULL
-    } else if (anyNA(names(sample_group)) || any(names(sample_group) == "")) {
-      warning("ignoring 'sample_group' because group names must be non-empty and not NA.")
-      sample_group <- NULL
-    } else if (anyDuplicated(names(sample_group))) {
-      warning("ignoring 'sample_group' due to duplicated group names.")
-      sample_group <- NULL
-    } else if (!all(vapply(sample_group, is.numeric, logical(1)))) {
-      warning("ignoring 'sample_group', as it contains non-numeric sample indices.")
-      sample_group <- NULL
-    } else if (anyNA(unlist(sample_group))) {
-      warning("ignoring 'sample_group' due to NA sample indices.")
-      sample_group <- NULL
-    } else if (anyDuplicated(unlist(sample_group))) {
-      warning("ignoring 'sample_group' due to duplicated sample indices.")
-      sample_group <- NULL
-    }
-  }
-      
+  sample_group <- .validate_group_param(sample_group, "sample_group")
+  validation_group <- .validate_group_param(validation_group, "validation_group")
+
   if (!is.logical(verbose)) {
     stop("'verbose' must be a logical.")
   }
@@ -365,6 +370,7 @@ plot.spectral_model <- function(
     validations_path = tmp_validations,
     selection = selection,
     sample_group = sample_group,
+    validation_group = validation_group,
     graph_params = list(...),
     subtitle = paste0(x$target_variable, " - ", Sys.Date())
   )
@@ -423,7 +429,7 @@ plot.spectral_model <- function(
   response = 3.1, response_overview = 3.2, residuals = 3.3,
   qq = 3.4, residuals_vs_fitted = 3.5, scale_location = 3.6, leverage = 3.7
 )
-.validation_plot_map <- c(predicted_vs_reference = 4.1)
+.validation_plot_map <- c(predicted_vs_reference = 4.1, leverage_vs_residual = 4.2)
 
 .print_plot_options <- function(spectral, cv, regression, validation) {
   use_col <- .use_color()
@@ -498,6 +504,37 @@ plot.spectral_model <- function(
       "\"name\"", "not rendered\n"
     )
   }
+}
+
+.validate_group_param <- function(group, param_name) {
+  if (is.null(group)) {
+    return(NULL)
+  }
+  if (!is.list(group) || is.null(names(group))) {
+    warning("'", param_name, "' should be a named list.")
+    return(NULL)
+  }
+  if (anyNA(names(group)) || any(names(group) == "")) {
+    warning("ignoring '", param_name, "' because group names must be non-empty and not NA.")
+    return(NULL)
+  }
+  if (anyDuplicated(names(group))) {
+    warning("ignoring '", param_name, "' due to duplicated group names.")
+    return(NULL)
+  }
+  if (!all(vapply(group, is.numeric, logical(1)))) {
+    warning("ignoring '", param_name, "', as it contains non-numeric sample indices.")
+    return(NULL)
+  }
+  if (anyNA(unlist(group))) {
+    warning("ignoring '", param_name, "' due to NA sample indices.")
+    return(NULL)
+  }
+  if (anyDuplicated(unlist(group))) {
+    warning("ignoring '", param_name, "' due to duplicated sample indices.")
+    return(NULL)
+  }
+  group
 }
 
 .resolve_plots <- function(arg, map) {

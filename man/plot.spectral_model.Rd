@@ -14,6 +14,7 @@
   regression = NULL,
   validation = if (!is.null(validations)) "all" else NULL,
   sample_group = NULL,
+  validation_group = NULL,
   verbose = TRUE, open_file = TRUE, ...
  )
 }
@@ -53,12 +54,18 @@ skip the section entirely. Available names:
 
 \item{validation}{a character vector of validation plots to include,
 \code{"all"} to include every validation plot, or \code{NULL} to skip.
-Available names: \code{"predicted_vs_reference"}. Defaults to \code{"all"}
-when \code{validations} is supplied, \code{NULL} otherwise.}
+Available names: \code{"predicted_vs_reference"}, \code{"leverage_vs_residual"}.
+Defaults to \code{"all"} when \code{validations} is supplied, \code{NULL} otherwise.}
 
 \item{sample_group}{a named list of samples that should have the same color.
 See details. Default is \code{NULL}, meaning no grouping is done. Note that this
 is only to distinguish samples for the plots; the model itself remains unchanged.}
+
+\item{validation_group}{a named list of validation samples that should have the
+same color, analogous to \code{sample_group} but for the plots in the
+\code{validation} section. Indices refer to the position of each sample within
+the validation set (as returned by \code{\link{validate_prediction}}), not to
+calibration sample indices. Default is \code{NULL}, meaning no grouping is done.}
 
 \item{verbose}{a logical. When \code{TRUE} (default), prints the path of the
 generated file. Pandoc output is always suppressed.}
@@ -189,6 +196,13 @@ linear regression model. Additionally, the \mjeqn{R^2}{R^2} and \code{RMSE}
 of both the validated predictions and model is depicted. See
 \code{\link{validate_prediction}} and \code{\link[=predict.spectral_model]{predict}} for more details on the
 prediction and validation process.
+\item {\strong{Leverage vs. Spectral Residual*}:} A points plot of the
+Mahalanobis distance (leverage) of each validated sample against its
+spectral (X-space) residual, normalized by the calibration set's own
+average residual for the same number of components. Not to be confused
+with the \strong{Leverage vs Residuals} plot in the \code{regression}
+section, which uses the classical (univariate) leverage of the fitted
+response instead.
 }
 
 Most of above plots contain a slider, which may be used to adjust the considered
@@ -205,6 +219,11 @@ The idea of this parameter is to allow the user to distinguish e.g. between
 different instruments. Each sample must belong to a single group, otherwise,
 this argument is ignored. Indices refer to the sample indices in the calibration
 statistics in the model.
+
+The parameter \code{validation_group} works analogously, but for the plots in
+the \code{validation} section. Since validation samples are not part of the
+calibration set, indices instead refer to the position of a sample within the
+validation set (as returned by \code{\link{validate_prediction}}).
 
 \strong{Additional parameters for graphics}
 
@@ -266,7 +285,9 @@ plot(
 # Make predictions and validate
 preds <- predict(my_model, NIRcannabis[skips, ])
 validations <- validate_prediction(preds, NIRcannabis$CBDA[skips])
-# Plot validation section only
+# Plot validation section only, grouping validation samples by instrument.
+# Indices in validation_group refer to the position of a sample within the
+# validation set (i.e. within 'skips'), not to calibration sample indices.
 plot(
   my_model,
   output_dir = tempdir(),
@@ -274,7 +295,11 @@ plot(
   validations = validations,
   spectral = NULL,
   cv = NULL,
-  regression = NULL
+  regression = NULL,
+  validation_group = list(
+    "Instrument A" = 1:2, # rows 5 and 13 of NIRcannabis (skips[1:2])
+    "Instrument B" = 3:4 # rows 21 and 73 of NIRcannabis (skips[3:4])
+  )
 )
 }
 }

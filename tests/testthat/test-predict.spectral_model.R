@@ -118,7 +118,7 @@ test_that("Predictions with formula from a data.frame is of class 'spectral_pred
 })
 
 test_that("Predictions with formula from a data.frame is named correctly", {
-  expect_named(predictions_df_form, c("predictions", "scores", "model_information"))
+  expect_named(predictions_df_form, c("predictions", "scores", "mahalanobis", "q_residual", "model_information"))
 })
 
 test_that("Model information of predictions with formula from a data.frame is correct", {
@@ -133,6 +133,57 @@ test_that("Model information of predictions with formula from a data.frame is co
 test_that("Predictions for dataframes from a formula are correctly printed", {
   withr::local_options(digits = 8)
   expect_snapshot(print(predictions_df_form))
+})
+
+test_that("Mahalanobis distance of predictions with formula from a data.frame has the correct shape and values", {
+  expect_true(is.matrix(predictions_df_form$mahalanobis))
+  expect_identical(dim(predictions_df_form$mahalanobis), dim(predictions_df_form$predictions))
+  expect_identical(dimnames(predictions_df_form$mahalanobis), dimnames(predictions_df_form$predictions))
+  expect_true(all(predictions_df_form$mahalanobis >= 0))
+})
+
+test_that("Mahalanobis distance collapses to the squared scaled score for a single component", {
+  predictions_1comp <- predict(
+    model_form,
+    dat[skiped_ind[1:(length(skiped_ind) - 1)], , drop = FALSE],
+    ncomp = 1,
+    verbose = FALSE
+  )
+  ref_scaled_scores <- model_form$final_model$model$scaled_scores[, 1]
+  new_scaled_scores <- predictions_1comp$scores[, 1] / model_form$final_model$model$sd_scores[1]
+  expected <- new_scaled_scores^2 / var(ref_scaled_scores)
+  expect_equal(unname(predictions_1comp$mahalanobis[, 1]), unname(expected), tolerance = 1e-10)
+})
+
+test_that("Spectral (Q) residual of predictions with formula from a data.frame has the correct shape and values", {
+  expect_true(is.matrix(predictions_df_form$q_residual))
+  expect_identical(dim(predictions_df_form$q_residual), dim(predictions_df_form$predictions))
+  expect_identical(dimnames(predictions_df_form$q_residual), dimnames(predictions_df_form$predictions))
+  expect_true(all(predictions_df_form$q_residual >= 0))
+})
+
+test_that("Spectral (Q) residual matches a hand-reconstructed residual sum of squares", {
+  newdata_raw <- X[skiped_ind[1:(length(skiped_ind) - 1)], , drop = FALSE]
+  newdata_processed <- process(newdata_raw, model_xy$preprocess)
+  new_data_centered <- scale(newdata_processed, center = model_xy$final_model$model$x_means, scale = FALSE)
+  nc <- 4
+  scores_new <- new_data_centered %*% t(model_xy$final_model$model$projection_m)
+  x_hat <- scores_new[, 1:nc, drop = FALSE] %*% model_xy$final_model$model$x_loadings[1:nc, , drop = FALSE]
+  expected_q <- rowSums((new_data_centered - x_hat)^2)
+  expect_equal(unname(predictions_mat_mat$q_residual[, "ncomp_4"]), unname(expected_q), tolerance = 1e-8)
+})
+
+test_that("Predicting a single new sample does not error and returns proper matrices", {
+  single_pred <- predict(
+    model_form,
+    dat[skiped_ind[1], , drop = FALSE],
+    ncomp = 1:6,
+    verbose = FALSE
+  )
+  expect_true(is.matrix(single_pred$mahalanobis))
+  expect_identical(dim(single_pred$mahalanobis), c(1L, 6L))
+  expect_true(is.matrix(single_pred$q_residual))
+  expect_identical(dim(single_pred$q_residual), c(1L, 6L))
 })
 
 #########################################################################
@@ -181,7 +232,7 @@ test_that("Predictions with matrices from a matrix is of class 'spectral_predict
 })
 
 test_that("Predictions with matrices from a matrix is named correctly", {
-  expect_named(predictions_mat_mat, c("predictions", "scores", "model_information"))
+  expect_named(predictions_mat_mat, c("predictions", "scores", "mahalanobis", "q_residual", "model_information"))
 })
 
 test_that("Model information of predictions with matrices from a matrix is correct", {
@@ -196,6 +247,13 @@ test_that("Model information of predictions with matrices from a matrix is corre
 test_that("Predictions of a dataframe from a matrix are correctly printed", {
   withr::local_options(digits = 8)
   expect_snapshot(print(predictions_df_mat))
+})
+
+test_that("Mahalanobis distance of predictions with matrices from a matrix has the correct shape and values", {
+  expect_true(is.matrix(predictions_mat_mat$mahalanobis))
+  expect_identical(dim(predictions_mat_mat$mahalanobis), dim(predictions_mat_mat$predictions))
+  expect_identical(dimnames(predictions_mat_mat$mahalanobis), dimnames(predictions_mat_mat$predictions))
+  expect_true(all(predictions_mat_mat$mahalanobis >= 0))
 })
 
 #################

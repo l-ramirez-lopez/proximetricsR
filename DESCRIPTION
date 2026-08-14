@@ -1,8 +1,8 @@
 Package: proximetricsR
 Type: Package
 Title: Spectral Preprocessing and Chemometric Calibration of NIR Sensors
-Version: 0.7.0
-Date: 2026-08-03
+Version: 0.7.1
+Date: 2026-08-14
 Authors@R: c(
     person(given = "Leonardo",
            family = "Ramirez-Lopez",
@@ -76,6 +76,6 @@ LazyData: true
 LazyDataCompression: xz
 Encoding: UTF-8
 Config/testthat/edition: 3
-Config/VersionName: Matterhorn2
+Config/VersionName: Valinhos
 Config/roxygen2/version: 8.0.0
 Config/roxygen2/markdown: TRUE
