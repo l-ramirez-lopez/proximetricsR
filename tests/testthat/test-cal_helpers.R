@@ -1,4 +1,3 @@
-set.seed(1)
 reference <- matrix(rnorm(50 * 5), 50, 5)
 
 test_that(".gh_distance returns a proper matrix for multiple samples and multiple components", {
