@@ -157,6 +157,18 @@ if (length(given_params) > 0) {
 validations <- if (!is.null(params$validations_path)) readRDS(params$validations_path) else NULL
 val_refs <- validations$reference
 
+# Index (within validations$validation) of the entry matching the optimal
+# number of components, used as the initially visible trace/slider position.
+# Falls back to the first entry if the optimal ncomp was not included.
+val_opt_idx <- 1L
+if (!is.null(validations) && length(validations$validation) > 0) {
+  val_ncomp <- as.numeric(gsub("ncomp_", "", names(validations$validation)))
+  matched_idx <- which(val_ncomp == opt_comp)
+  if (length(matched_idx) == 1) {
+    val_opt_idx <- matched_idx
+  }
+}
+
 # Map validation group indices to positions within the validation set
 validation_group <- params$validation_group
 val_group_factor <- NULL
@@ -2252,6 +2264,7 @@ n_vals <- length(validations$validation)
 refs <- validations$reference
 n_val_groups <- if (has_val_group) length(levels(val_group_factor)) else 1L
 n_marker_traces <- if (has_val_group) n_vals * n_val_groups else n_vals
+val_ncomp <- as.numeric(gsub("ncomp_", "", names(validations$validation)))
 fig <- plot_ly()
 for (i in seq_len(n_vals)) {
   preds <- as.matrix(validations$validation[[i]]$val_results[, "y_hat"])
@@ -2263,7 +2276,7 @@ for (i in seq_len(n_vals)) {
   fig <- fig |> add_lines(
     x = line_x_y,
     y = line_x_y,
-    visible = (i == 1),
+    visible = (i == val_opt_idx),
     line = list(
       dash = "dash",
       width = 1,
@@ -2287,7 +2300,7 @@ for (i in seq_len(n_vals)) {
   fig <- fig |> add_lines(
     x = line_x_y,
     y = lin_model$coefficients[1] + line_x_y * lin_model$coefficients[2],
-    visible = (i == 1),
+    visible = (i == val_opt_idx),
     line = list(width = 1, color = colrs[i]),
     showlegend = FALSE,
     hoverinfo = "text",
@@ -2305,7 +2318,7 @@ for (i in seq_len(n_vals)) {
       fig <- fig |> add_markers(
         x = as.vector(refs)[idx],
         y = preds[idx],
-        visible = (i == 1),
+        visible = (i == val_opt_idx),
         hovertext = paste("Observation", rownames(validations$validation[[i]]$val_results)[idx]),
         name = g,
         legendgroup = g,
@@ -2321,7 +2334,7 @@ for (i in seq_len(n_vals)) {
     fig <- fig |> add_markers(
       x = as.vector(refs),
       y = preds,
-      visible = (i == 1),
+      visible = (i == val_opt_idx),
       hovertext = paste("Observation", rownames(validations$validation[[i]]$val_results)),
       showlegend = FALSE,
       marker = list(color = colrs[i]),
@@ -2362,7 +2375,7 @@ for (i in seq_len(n_vals)) {
   x = line_x_y[1],
   y = line_x_y[length(line_x_y)],
   textposition = "bottom right",
-  visible = (i == 1),
+  visible = (i == val_opt_idx),
   showlegend = FALSE,
   hoverinfo = "text",
   fillcolor = "red"
@@ -2391,7 +2404,7 @@ if (n_vals > 1) {
     val_steps[[i]] <- list(
       args = list("visible", vis),
       method = "restyle",
-      label = names(validations$validation)[i],
+      label = paste("Component", val_ncomp[i]),
       value = as.character(i)
     )
   }
@@ -2400,7 +2413,7 @@ if (n_vals > 1) {
       prefix = "",
       font = list(color = "black", xanchor = "left")
     ),
-    active = 0,
+    active = val_opt_idx - 1,
     steps = val_steps,
     pad = list(t = 50, r = 50, b = 0, l = 50)
   ))
@@ -2419,6 +2432,7 @@ if (val_selection[2]) cat("### Leverage vs. Spectral Residual\n\n")
 #| eval: !expr val_selection[2]
 n_vals <- length(validations$validation)
 n_val_groups <- if (has_val_group) length(levels(val_group_factor)) else 1L
+val_ncomp <- as.numeric(gsub("ncomp_", "", names(validations$validation)))
 fig <- plot_ly()
 for (i in seq_len(n_vals)) {
   nc_label <- names(validations$validation)[i]
@@ -2434,7 +2448,7 @@ for (i in seq_len(n_vals)) {
       fig <- fig |> add_markers(
         x = leverage_i[idx],
         y = y_i[idx],
-        visible = (i == 1),
+        visible = (i == val_opt_idx),
         hovertext = paste("Observation", rownames(validations$validation[[i]]$val_results)[idx]),
         name = g,
         legendgroup = g,
@@ -2450,7 +2464,7 @@ for (i in seq_len(n_vals)) {
     fig <- fig |> add_markers(
       x = leverage_i,
       y = y_i,
-      visible = (i == 1),
+      visible = (i == val_opt_idx),
       hovertext = paste("Observation", rownames(validations$validation[[i]]$val_results)),
       showlegend = FALSE,
       marker = list(color = colrs[i]),
@@ -2490,7 +2504,7 @@ if (n_vals > 1) {
     val_steps2[[i]] <- list(
       args = list("visible", vis),
       method = "restyle",
-      label = names(validations$validation)[i],
+      label = paste("Component", val_ncomp[i]),
       value = as.character(i)
     )
   }
@@ -2499,7 +2513,7 @@ if (n_vals > 1) {
       prefix = "",
       font = list(color = "black", xanchor = "left")
     ),
-    active = 0,
+    active = val_opt_idx - 1,
     steps = val_steps2,
     pad = list(t = 50, r = 50, b = 0, l = 50)
   ))
