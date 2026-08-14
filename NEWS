@@ -1,3 +1,11 @@
+proximetricsR 0.7.1 "Valinhos"
+===============
+* Feat: validation results now include the Mahalanobis (GH) distance, computed from scaled PLS scores, and the spectral (X-space) residual for each sample. Both are returned by `calibrate_models()` and `validate_prediction()` and are available for downstream analysis.
+* Feat: `plot.spectral_model()` gained a `validation_group` argument to colour validation samples by group, for example by instrument.
+* Feat: new "Leverage vs. Spectral Residual" validation plot, showing Mahalanobis distance against normalised spectral residuals, with grouped colouring.
+* Misc: group argument checking for `sample_group` and `validation_group` refactored into a single internal helper.
+* Docs: documented the new arguments, validation statistics and plot, including in `model_plot_template.qmd`.
+
 proximetricsR 0.7.0 "Matterhorn2"
 ===============
 * Feat: `proximate_read_data()` now automatically detects and handles UTF-8 vs Windows-1252/ANSI encoded TSV files, ensuring correct decoding of special characters in metadata regardless of locale.
