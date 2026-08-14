@@ -1041,7 +1041,7 @@ predict.spectral_model <- function(
     newdata <- newdata[[all.vars(object$formula)[-1]]]
   }
 
-  new_data <- scale(newdata[, object$predictor_variables], center = object$final_model$model$x_means, FALSE)
+  new_data <- scale(newdata[, object$predictor_variables, drop = FALSE], center = object$final_model$model$x_means, FALSE)
   relevant_coefs <- object$final_model$model$coefficients[ncomp, , drop = FALSE]
 
 
@@ -1078,10 +1078,16 @@ predict.spectral_model <- function(
   )
   dimnames(mahalanobis) <- dimnames(predictions)
 
-  q_residual <- vapply(ncomp, FUN.VALUE = numeric(nrow(new_data)), FUN = function(nc) {
-    x_hat <- scores[, 1:nc, drop = FALSE] %*% object$final_model$model$x_loadings[1:nc, , drop = FALSE]
-    rowSums((new_data - x_hat)^2)
-  })
+  q_residual <- matrix(
+    unlist(
+      lapply(ncomp, FUN = function(nc) {
+        x_hat <- scores[, 1:nc, drop = FALSE] %*% object$final_model$model$x_loadings[1:nc, , drop = FALSE]
+        rowSums((new_data - x_hat)^2)
+      }),
+      use.names = FALSE
+    ),
+    nrow = nrow(new_data), ncol = length(ncomp)
+  )
   dimnames(q_residual) <- dimnames(predictions)
 
   results <- list(

@@ -56,6 +56,9 @@ validate_prediction <- function(prediction, reference) {
   if (!"spectral_prediction" %in% class(prediction)) {
     stop("Parameter 'prediction' must be of class 'spectral_prediction'.")
   }
+  if (is.null(prediction$mahalanobis) || is.null(prediction$q_residual)) {
+    stop("'prediction' is missing 'mahalanobis' and/or 'q_residual'. ")
+  }
   if (all(is.na(reference))) {
     stop("'reference' only contains 'NA' values.")
   }

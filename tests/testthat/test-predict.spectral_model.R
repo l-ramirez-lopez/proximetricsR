@@ -173,6 +173,19 @@ test_that("Spectral (Q) residual matches a hand-reconstructed residual sum of sq
   expect_equal(unname(predictions_mat_mat$q_residual[, "ncomp_4"]), unname(expected_q), tolerance = 1e-8)
 })
 
+test_that("Predicting a single new sample does not error and returns proper matrices", {
+  single_pred <- predict(
+    model_form,
+    dat[skiped_ind[1], , drop = FALSE],
+    ncomp = 1:6,
+    verbose = FALSE
+  )
+  expect_true(is.matrix(single_pred$mahalanobis))
+  expect_identical(dim(single_pred$mahalanobis), c(1L, 6L))
+  expect_true(is.matrix(single_pred$q_residual))
+  expect_identical(dim(single_pred$q_residual), c(1L, 6L))
+})
+
 #########################################################################
 # PREDICTIONS OF predictions_mat_form CORRESPOND TO predictions_df_form #
 #########################################################################

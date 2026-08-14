@@ -23,8 +23,12 @@
     obs <- x[, 1:factors, drop = FALSE]
     stats::mahalanobis(obs, center = rep(0, factors), cov = cov(ref))
   }
-
-  sweep(sapply(ncomp, FUN = get_diss), MARGIN = 2, STATS = ncomp, FUN = "/")
+  
+  diss <- matrix(
+    unlist(lapply(ncomp, get_diss), use.names = FALSE),
+    nrow = nrow(x), ncol = length(ncomp)
+  )
+  sweep(diss, MARGIN = 2, STATS = ncomp, FUN = "/")
 }
 
 #' @title Computes the NIRWise QVAL statistic

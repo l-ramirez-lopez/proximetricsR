@@ -73,6 +73,22 @@ test_that("Provided prediction must be of class 'spectral_prediction'", {
   expect_error(validate_prediction(pred1$predictions, NIRcannabisTHCA[1:10]), "Parameter 'prediction' must be of class 'spectral_prediction'.")
 })
 
+test_that("Prediction missing 'mahalanobis' or 'q_residual' (e.g. from an older package version) errors clearly", {
+  pred_no_mahal <- pred1
+  pred_no_mahal$mahalanobis <- NULL
+  expect_error(
+    validate_prediction(pred_no_mahal, NIRcannabis$THCA[1:10]),
+    "missing 'mahalanobis' and/or 'q_residual'"
+  )
+
+  pred_no_q <- pred1
+  pred_no_q$q_residual <- NULL
+  expect_error(
+    validate_prediction(pred_no_q, NIRcannabis$THCA[1:10]),
+    "missing 'mahalanobis' and/or 'q_residual'"
+  )
+})
+
 test_that("Entries in reference must be numerical", {
   expect_error(validate_prediction(pred1, "test"), "Non-numerical values found in 'reference'")
 })

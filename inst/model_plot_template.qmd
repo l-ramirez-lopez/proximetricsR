@@ -204,16 +204,27 @@ cv_selection <- 21:27 %in% selection & has_val
 if (20 %in% selection & has_val) cv_selection <- rep(TRUE, length(cv_selection))
 regression_selection <- 31:37 %in% selection
 if (30 %in% selection) regression_selection <- rep(TRUE, length(regression_selection))
-val_selection <- 41:42 %in% selection & !is.null(validations)
-if (40 %in% selection & !is.null(validations)) val_selection <- rep(TRUE, length(val_selection))
+
+# Are there any validations to plot at all?
+has_any_validation <- !is.null(validations) && !is.null(val_refs) && length(validations$validation) > 0
+# Does every validation entry carry the fields needed for the leverage/residual plot?
+has_mahal_q <- has_any_validation && all(vapply(
+  validations$validation,
+  FUN = function(v) all(c("mahalanobis", "q_residual") %in% colnames(v$val_results)),
+  FUN.VALUE = logical(1)
+))
+
+val_selection <- 41:42 %in% selection & has_any_validation
+if (40 %in% selection & has_any_validation) val_selection <- rep(TRUE, length(val_selection))
 
 # Check computability of certain plots/headers
 header_selection[2] <- header_selection[2] && has_val
 spectral_selection[1] <- spectral_selection[1] && !is.null(full_model$input_data$data[[spc_name]])
 spectral_selection[2] <- spectral_selection[2] && !is.null(full_model$preprocessed_X)
 cv_selection[2:7] <- cv_selection[2:7] & any(full_model$control$validation_type == c("kfold", "loo"))
-header_selection[4] <- header_selection[4] && !is.null(validations)
-val_selection[1:2] <- val_selection[1:2] & !is.null(val_refs)
+header_selection[4] <- header_selection[4] && has_any_validation
+val_selection[1] <- val_selection[1] & has_any_validation
+val_selection[2] <- val_selection[2] & has_mahal_q
 ```
 
 
@@ -2413,7 +2424,8 @@ for (i in seq_len(n_vals)) {
   nc_label <- names(validations$validation)[i]
   leverage_i <- as.vector(validations$validation[[i]]$val_results[, "mahalanobis"])
   q_i <- validations$validation[[i]]$val_results[, "q_residual"]
-  q_ref <- mean(final_model$model$x_residuals[, nc_label])
+  q_ref <- mean(final_model$model$x_residuals[, nc_label], na.rm = TRUE)
+  if (!is.finite(q_ref) || q_ref <= 0) q_ref <- 1
   y_i <- as.vector(q_i / q_ref)
   if (has_val_group) {
     for (gi in seq_along(levels(val_group_factor))) {
