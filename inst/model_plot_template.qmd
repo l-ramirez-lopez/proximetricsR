@@ -159,13 +159,16 @@ val_refs <- validations$reference
 
 # Index (within validations$validation) of the entry matching the optimal
 # number of components, used as the initially visible trace/slider position.
-# Falls back to the first entry if the optimal ncomp was not included.
+# Falls back to the last (highest ncomp) entry if the optimal ncomp was not
+# included.
 val_opt_idx <- 1L
 if (!is.null(validations) && length(validations$validation) > 0) {
   val_ncomp <- as.numeric(gsub("ncomp_", "", names(validations$validation)))
   matched_idx <- which(val_ncomp == opt_comp)
   if (length(matched_idx) == 1) {
     val_opt_idx <- matched_idx
+  } else {
+    val_opt_idx <- length(validations$validation)
   }
 }
 
