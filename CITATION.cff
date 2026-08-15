@@ -1,0 +1,34 @@
+cff-version: 1.2.0
+message: "If you use proximetricsR in your work, please cite it as below."
+
+title: "proximetricsR: Spectral Preprocessing and Chemometric Calibration of NIR Sensors"
+version: 0.7.1
+date-released: 2026-08-14
+
+authors:
+  - family-names: "Ramirez-Lopez"
+    given-names: "Leonardo"
+    orcid: "https://orcid.org/0000-0002-5369-5120"
+
+  - family-names: "Orellano"
+    given-names: "Claudio"
+    orcid: "https://orcid.org/0009-0005-7523-4236"
+
+  - family-names: "Cudlenco"
+    given-names: "Nicolae"
+    orcid: "https://orcid.org/0000-0001-6547-3659"
+
+  - family-names: "Said"
+    given-names: "Mai"
+    orcid: "https://orcid.org/0000-0001-6979-8725"
+
+  - family-names: "Abushosha"
+    given-names: "Mohamed"
+
+  - family-names: "Plans"
+    given-names: "Marcal"
+    orcid: "https://orcid.org/0000-0001-9894-2626"
+
+repository-code: "https://github.com/buchi-labortechnik-ag/proximetricsR"
+url: "https://proximetricsr.r.packages.buchi-nir.io/"
+license: MIT

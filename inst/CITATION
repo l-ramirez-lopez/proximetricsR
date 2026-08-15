@@ -18,7 +18,7 @@ bibentry(bibtype = "Manual",
   url = "https://github.com/buchi-labortechnik-ag/proximetricsr",
 
   textVersion =
-  paste("Ramirez-Lopez, L., Orellano, C., Cudlenco, N., Said, M., and Abushosha, M. (",
+  paste("Ramirez-Lopez, L., Orellano, C., Cudlenco, N., Said, M., Abushosha, M. and Plans, M. (",
         year,
         "). proximetricsR: Spectral Preprocessing and Calibration for NIR Sensors. ",
         vers, ".", sep="")
