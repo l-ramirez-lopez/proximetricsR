@@ -38,6 +38,11 @@ band the original matrix is returned with a warning.
 Constant edge trimming scans inward from each edge and drops columns that
 are identical to their immediate neighbour or are all zero. If trimming
 would leave fewer than two columns the step is skipped with a warning.
+
+Because constant edge trimming depends on the data values, it is resolved to
+the fixed wavelength band retained on the training data when the step is used
+in \code{\link{calibrate}}, so that predictions trim \code{newdata} to exactly
+the same columns.
 }
 \examples{
 data("NIRcannabis")

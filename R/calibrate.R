@@ -427,6 +427,9 @@ calibrate.default <- function(X, Y, data = NULL, group = NULL,
 
   processed_wavs <- attr(Xp, "processed_wavs")
 
+  # Freeze any data-dependent constant-edge trimming into a fixed wavelength band
+  preprocess <- .freeze_trim_steps(preprocess, processed_wavs)
+
   wavs <- colnames(X)
   if (is.null(wavs)) {
     stop("Missing variable/column names in X")
@@ -1039,6 +1042,16 @@ predict.spectral_model <- function(
   }
   if (identical(colnames(newdata), all.vars(object$formula)[-1]) & (length(all.vars(object$formula)[-1]) == 1)) {
     newdata <- newdata[[all.vars(object$formula)[-1]]]
+  }
+
+  # Check that the variables align and avoid an opaque "subscript out of bounds" error
+  if (!is.null(colnames(newdata))) {
+    missing_vars <- setdiff(object$predictor_variables, colnames(newdata))
+    if (length(missing_vars) > 0) {
+      msg <- paste("Preprocessed 'newdata' is missing", length(missing_vars),
+                   "spectral variable(s) required by the model.")
+      stop(msg)
+    }
   }
 
   new_data <- scale(newdata[, object$predictor_variables, drop = FALSE], center = object$final_model$model$x_means, FALSE)

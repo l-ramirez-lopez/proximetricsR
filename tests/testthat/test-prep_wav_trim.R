@@ -429,3 +429,62 @@ test_that("trimming with band wider than data includes all columns", {
   # Should include all columns
   expect_equal(ncol(result), ncol(X))
 })
+
+# ============================================================================
+# Test group 11: Fitted (frozen) constant-edge trimming
+# ============================================================================
+
+test_that(".exec_wav_trim reapplies resolved_band and skips the edge scan", {
+  # newdata with NO constant edges: a re-derived constant-edge scan would keep
+  # every column, but a frozen band must trim to the recorded range.
+  X <- matrix(c(9, 7, 5, 3, 1, 8, 6, 4, 2, 0), nrow = 2, byrow = TRUE)
+  colnames(X) <- c(1000, 1100, 1200, 1300, 1400)
+
+  step <- prep_wav_trim(band = c(), trim_constant_edges = TRUE)
+  step$resolved_band <- c(1100, 1400)
+
+  result <- proximetricsR:::.exec_wav_trim(X, step)
+
+  expect_equal(as.numeric(colnames(result)), c(1100, 1200, 1300, 1400))
+})
+
+test_that(".freeze_trim_steps records the surviving band of an edge-trim step", {
+  # Training data with a constant left edge (col 1000 == col 1100).
+  X <- matrix(c(5, 5, 1, 3, 6, 5, 5, 2, 4, 7), nrow = 2, byrow = TRUE)
+  colnames(X) <- c(1000, 1100, 1200, 1300, 1400)
+
+  recipe <- preprocess_recipe(
+    prep_wav_trim(band = c(), trim_constant_edges = TRUE),
+    device = "proxiscout"
+  )
+  Xp <- process(X, recipe)
+  processed_wavs <- attr(Xp, "processed_wavs")
+
+  frozen <- proximetricsR:::.freeze_trim_steps(recipe, processed_wavs)
+
+  expect_equal(frozen$steps[[1]]$resolved_band, range(as.numeric(colnames(Xp))))
+})
+
+test_that("frozen trim keeps newdata aligned regardless of its own edges", {
+  # Training: constant left edge -> edge scan drops column 1000.
+  X_train <- matrix(c(5, 5, 1, 3, 6, 5, 5, 2, 4, 7), nrow = 2, byrow = TRUE)
+  colnames(X_train) <- c(1000, 1100, 1200, 1300, 1400)
+
+  recipe <- preprocess_recipe(
+    prep_wav_trim(band = c(), trim_constant_edges = TRUE),
+    device = "proxiscout"
+  )
+  Xp <- process(X_train, recipe)
+  train_cols <- colnames(Xp)
+
+  frozen <- proximetricsR:::.freeze_trim_steps(recipe, attr(Xp, "processed_wavs"))
+
+  # newdata whose edges are NOT constant: re-deriving the scan would keep all
+  # columns and misalign with the model. The frozen recipe must not.
+  X_new <- matrix(c(9, 7, 5, 3, 1, 8, 6, 4, 2, 0), nrow = 2, byrow = TRUE)
+  colnames(X_new) <- c(1000, 1100, 1200, 1300, 1400)
+
+  X_new_p <- process(X_new, frozen)
+
+  expect_equal(colnames(X_new_p), train_cols)
+})
