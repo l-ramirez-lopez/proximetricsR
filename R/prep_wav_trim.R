@@ -35,9 +35,9 @@
 #' would leave fewer than two columns the step is skipped with a warning.
 #'
 #' Because constant edge trimming depends on the data values, it is resolved to
-#' the fixed wavelength band retained on the training data when the step is used
-#' in \code{\link{calibrate}}, so that predictions trim \code{newdata} to exactly
-#' the same columns.
+#' the exact set of wavelengths retained on the training data when the step is
+#' used in \code{\link{calibrate}}, so that predictions trim \code{newdata} to
+#' exactly the same columns.
 #'
 #' @author Claudio Orellano and Leonardo Ramirez-Lopez
 #'
@@ -84,21 +84,20 @@ prep_wav_trim <- function(band, trim_constant_edges = FALSE) {
 .exec_wav_trim <- function(X, step) {
   X_trim <- X
 
-  # Fitted step: when a 'resolved_band' has been recorded during calibration
-  # (see .freeze_trim_steps), reapply that fixed wavelength range and skip the
-  # data-dependent constant-edge scan entirely.
-  if (!is.null(step$resolved_band)) {
+  # Fitted step: select the exact wavelengths retained during calibration (see
+  # .freeze_trim_steps), in training order, and skip the constant-edge scan.
+  if (!is.null(step$resolved_wavs)) {
     wav <- as.numeric(colnames(X_trim))
     if (any(is.na(wav))) {
       warning("Column names are not numeric wavelengths; band trimming skipped.")
       return(X_trim)
     }
-    in_range <- which(wav >= min(step$resolved_band) & wav <= max(step$resolved_band))
-    if (length(in_range) < 1) {
-      warning("Band trimming would drop all columns; step ignored.")
-      return(X_trim)
+    idx <- match(step$resolved_wavs, wav)
+    if (anyNA(idx)) {
+      miss <- step$resolved_wavs[is.na(idx)]
+      stop("'newdata' is missing ", length(miss), " wavelength(s) required by the model.")
     }
-    return(X_trim[, in_range, drop = FALSE])
+    return(X_trim[, idx, drop = FALSE])
   }
 
   if (length(step$band) == 2) {
@@ -144,16 +143,17 @@ prep_wav_trim <- function(band, trim_constant_edges = FALSE) {
 #' Freeze data-dependent constant-edge trim steps into a fixed wavelength band
 #'
 #' Records, on each \code{prep_wav_trim} step using
-#' \code{trim_constant_edges = TRUE}, the band retained on the training data
-#' (\code{resolved_band}) so \code{.exec_wav_trim} reapplies it deterministically
-#' to \code{newdata} instead of re-deriving the trimming from its own values.
+#' \code{trim_constant_edges = TRUE}, the exact wavelengths retained on the
+#' training data (\code{resolved_wavs}) so \code{.exec_wav_trim} reapplies them
+#' deterministically to \code{newdata} instead of re-deriving the trimming from
+#' its own values.
 #'
 #' @param recipe A \code{preprocess_recipe} object.
 #' @param processed_wavs A \code{processed_wavs} object holding the wavelengths
 #' retained after each step (from the \code{"processed_wavs"} attribute of
 #' \code{\link{process}}).
 #'
-#' @return The \code{recipe} with \code{resolved_band} set on each fitted step.
+#' @return The \code{recipe} with \code{resolved_wavs} set on each fitted step.
 #'
 #' @keywords internal
 .freeze_trim_steps <- function(recipe, processed_wavs) {
@@ -162,7 +162,7 @@ prep_wav_trim <- function(band, trim_constant_edges = FALSE) {
     if (isTRUE(step$method == "prep_wav_trim") && isTRUE(step$trim_constant_edges)) {
       retained <- processed_wavs[[paste0("step_", j)]]
       if (length(retained) > 0) {
-        recipe$steps[[j]]$resolved_band <- range(retained)
+        recipe$steps[[j]]$resolved_wavs <- retained
       }
     }
   }

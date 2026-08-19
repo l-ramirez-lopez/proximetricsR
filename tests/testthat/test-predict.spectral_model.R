@@ -318,3 +318,45 @@ test_that("Predictor variables (newdata) must have the same wavelengths as the m
     "Missing predictor variables"
   )
 })
+
+##################################################
+# FROZEN CONSTANT-EDGE TRIMMING (end-to-end)     #
+##################################################
+
+test_that("constant-edge trimming is frozen at calibration and keeps newdata aligned", {
+  skip_on_cran()
+
+  # Force a constant left edge so training edge-trimming drops the first columns.
+  Xtr <- X
+  Xtr[, 1:3] <- Xtr[, 4]
+
+  trim_recipe <- preprocess_recipe(
+    prep_wav_trim(band = c(), trim_constant_edges = TRUE),
+    prep_snv(),
+    device = "proxiscout"
+  )
+
+  m <- suppressWarnings(calibrate(
+    Xtr, Y,
+    preprocess = trim_recipe, method = fit_plsr(5, "standard"),
+    control = control, verbose = FALSE
+  ))
+
+  # (1) The recipe stored on the model is frozen to the exact retained wavelengths.
+  frozen_wavs <- m$preprocess$steps[[1]]$resolved_wavs
+  expect_false(is.null(frozen_wavs))
+  expect_equal(as.numeric(m$predictor_variables), frozen_wavs)
+
+  # (2) newdata with NON-constant edges: a re-derived scan would keep the first
+  #     three columns and misalign. The frozen recipe drops them and predicts.
+  Xnew <- NIRcannabis$spc[1:15, ]
+  pred <- predict(m, Xnew, verbose = FALSE)
+  expect_s3_class(pred, "spectral_prediction")
+  expect_equal(nrow(pred$predictions), nrow(Xnew))
+
+  # (3) Missing a required wavelength errors clearly instead of misaligning.
+  expect_error(
+    predict(m, Xnew[, -10], verbose = FALSE),
+    "missing"
+  )
+})

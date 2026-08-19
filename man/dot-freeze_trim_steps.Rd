@@ -14,12 +14,13 @@ retained after each step (from the \code{"processed_wavs"} attribute of
 \code{\link{process}}).}
 }
 \value{
-The \code{recipe} with \code{resolved_band} set on each fitted step.
+The \code{recipe} with \code{resolved_wavs} set on each fitted step.
 }
 \description{
 Records, on each \code{prep_wav_trim} step using
-\code{trim_constant_edges = TRUE}, the band retained on the training data
-(\code{resolved_band}) so \code{.exec_wav_trim} reapplies it deterministically
-to \code{newdata} instead of re-deriving the trimming from its own values.
+\code{trim_constant_edges = TRUE}, the exact wavelengths retained on the
+training data (\code{resolved_wavs}) so \code{.exec_wav_trim} reapplies them
+deterministically to \code{newdata} instead of re-deriving the trimming from
+its own values.
 }
 \keyword{internal}

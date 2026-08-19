@@ -1044,14 +1044,12 @@ predict.spectral_model <- function(
     newdata <- newdata[[all.vars(object$formula)[-1]]]
   }
 
-  # Check that the variables align and avoid an opaque "subscript out of bounds" error
-  if (!is.null(colnames(newdata))) {
-    missing_vars <- setdiff(object$predictor_variables, colnames(newdata))
-    if (length(missing_vars) > 0) {
-      msg <- paste("Preprocessed 'newdata' is missing", length(missing_vars),
-                   "spectral variable(s) required by the model.")
-      stop(msg)
-    }
+  # Check that the variables align and avoid an opaque "subscript out of bounds" error.
+  missing_vars <- setdiff(object$predictor_variables, colnames(newdata))
+  if (length(missing_vars) > 0) {
+    msg <- paste("Preprocessed 'newdata' is missing", length(missing_vars),
+                 "spectral variable(s) required by the model.")
+    stop(msg)
   }
 
   new_data <- scale(newdata[, object$predictor_variables, drop = FALSE], center = object$final_model$model$x_means, FALSE)

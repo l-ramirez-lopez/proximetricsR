@@ -434,21 +434,48 @@ test_that("trimming with band wider than data includes all columns", {
 # Test group 11: Fitted (frozen) constant-edge trimming
 # ============================================================================
 
-test_that(".exec_wav_trim reapplies resolved_band and skips the edge scan", {
+test_that(".exec_wav_trim reapplies resolved_wavs and skips the edge scan", {
   # newdata with NO constant edges: a re-derived constant-edge scan would keep
-  # every column, but a frozen band must trim to the recorded range.
+  # every column, but a frozen step must select the recorded wavelengths.
   X <- matrix(c(9, 7, 5, 3, 1, 8, 6, 4, 2, 0), nrow = 2, byrow = TRUE)
   colnames(X) <- c(1000, 1100, 1200, 1300, 1400)
 
   step <- prep_wav_trim(band = c(), trim_constant_edges = TRUE)
-  step$resolved_band <- c(1100, 1400)
+  step$resolved_wavs <- c(1100, 1200, 1300, 1400)
 
   result <- proximetricsR:::.exec_wav_trim(X, step)
 
   expect_equal(as.numeric(colnames(result)), c(1100, 1200, 1300, 1400))
 })
 
-test_that(".freeze_trim_steps records the surviving band of an edge-trim step", {
+test_that(".exec_wav_trim drops extra interior columns and preserves training order", {
+  # newdata with an extra in-range wavelength (1150) and shuffled columns.
+  X <- matrix(1:12, nrow = 2)
+  colnames(X) <- c(1400, 1150, 1100, 1300, 1200, 1000)
+
+  step <- prep_wav_trim(band = c(), trim_constant_edges = TRUE)
+  step$resolved_wavs <- c(1100, 1200, 1300, 1400)
+
+  result <- proximetricsR:::.exec_wav_trim(X, step)
+
+  # 1150 dropped, 1000 dropped, columns in the recorded training order.
+  expect_equal(as.numeric(colnames(result)), c(1100, 1200, 1300, 1400))
+})
+
+test_that(".exec_wav_trim errors when a required wavelength is missing", {
+  X <- matrix(1:8, nrow = 2)
+  colnames(X) <- c(1000, 1100, 1200, 1300)
+
+  step <- prep_wav_trim(band = c(), trim_constant_edges = TRUE)
+  step$resolved_wavs <- c(1100, 1200, 1300, 1400) # 1400 absent from X
+
+  expect_error(
+    proximetricsR:::.exec_wav_trim(X, step),
+    "missing 1 wavelength"
+  )
+})
+
+test_that(".freeze_trim_steps records the surviving wavelengths of an edge-trim step", {
   # Training data with a constant left edge (col 1000 == col 1100).
   X <- matrix(c(5, 5, 1, 3, 6, 5, 5, 2, 4, 7), nrow = 2, byrow = TRUE)
   colnames(X) <- c(1000, 1100, 1200, 1300, 1400)
@@ -462,7 +489,7 @@ test_that(".freeze_trim_steps records the surviving band of an edge-trim step", 
 
   frozen <- proximetricsR:::.freeze_trim_steps(recipe, processed_wavs)
 
-  expect_equal(frozen$steps[[1]]$resolved_band, range(as.numeric(colnames(Xp))))
+  expect_equal(frozen$steps[[1]]$resolved_wavs, as.numeric(colnames(Xp)))
 })
 
 test_that("frozen trim keeps newdata aligned regardless of its own edges", {
