@@ -2,7 +2,7 @@
 % Please edit documentation in R/prep_wav_trim.R
 \name{prep_wav_trim}
 \alias{prep_wav_trim}
-\title{Wavelength trimming constructor for spectral preprocessing}
+\title{Wavelength or wavenumber trimming constructor for spectral preprocessing}
 \usage{
 prep_wav_trim(
   band,
@@ -27,7 +27,7 @@ An object of class \code{preprocessing} to be used in
 \loadmathjax
 
 Creates a preprocessing constructor for trimming spectral data to a
-specified wavelength band. The constructor is intended to be passed to
+specified wavelength/wavenumber band. The constructor is intended to be passed to
 \code{\link{preprocess_recipe}} and executed via \code{\link{process}}.
 }
 \details{
@@ -38,6 +38,11 @@ band the original matrix is returned with a warning.
 Constant edge trimming scans inward from each edge and drops columns that
 are identical to their immediate neighbour or are all zero. If trimming
 would leave fewer than two columns the step is skipped with a warning.
+
+Because constant edge trimming depends on the data values, it is resolved to
+the exact set of wavelengths/wavenumbers retained on the training data when the step is
+used in \code{\link{calibrate}}, so that predictions trim \code{newdata} to
+exactly the same columns.
 }
 \examples{
 data("NIRcannabis")

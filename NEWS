@@ -4,6 +4,7 @@ proximetricsR 0.7.1 "Valinhos"
 * Feat: `plot.spectral_model()` gained a `validation_group` argument to colour validation samples by group, for example by instrument.
 * Feat: new "Leverage vs. Spectral Residual" validation plot, showing Mahalanobis distance against normalised spectral residuals, with grouped colouring.
 * Misc: group argument checking for `sample_group` and `validation_group` refactored into a single internal helper.
+* Fix: `predict.spectral_model()` no longer misaligns `newdata` with `prep_wav_trim(trim_constant_edges = TRUE)`; the trimmed band is resolved at calibration time and reapplied deterministically.
 * Docs: documented the new arguments, validation statistics and plot, including in `model_plot_template.qmd`.
 
 proximetricsR 0.7.0 "Matterhorn2"
