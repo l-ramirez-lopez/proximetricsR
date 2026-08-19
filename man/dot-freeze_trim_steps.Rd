@@ -2,7 +2,8 @@
 % Please edit documentation in R/prep_wav_trim.R
 \name{.freeze_trim_steps}
 \alias{.freeze_trim_steps}
-\title{Freeze data-dependent constant-edge trim steps into a fixed wavelength band}
+\title{Freeze data-dependent constant-edge trim steps into a fixed wavelength/wavenumber
+band}
 \usage{
 .freeze_trim_steps(recipe, processed_wavs)
 }
@@ -10,17 +11,17 @@
 \item{recipe}{A \code{preprocess_recipe} object.}
 
 \item{processed_wavs}{A \code{processed_wavs} object holding the wavelengths
-retained after each step (from the \code{"processed_wavs"} attribute of
-\code{\link{process}}).}
+or wavenumbers retained after each step (from the \code{"processed_wavs"}
+attribute of \code{\link{process}}).}
 }
 \value{
 The \code{recipe} with \code{resolved_wavs} set on each fitted step.
 }
 \description{
 Records, on each \code{prep_wav_trim} step using
-\code{trim_constant_edges = TRUE}, the exact wavelengths retained on the
-training data (\code{resolved_wavs}) so \code{.exec_wav_trim} reapplies them
-deterministically to \code{newdata} instead of re-deriving the trimming from
-its own values.
+\code{trim_constant_edges = TRUE}, the exact wavelengths or wavenumbers
+retained on the training data (\code{resolved_wavs}) so \code{.exec_wav_trim}
+reapplies them deterministically to \code{newdata} instead of re-deriving the
+trimming from its own values.
 }
 \keyword{internal}

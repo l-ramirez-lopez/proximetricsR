@@ -379,7 +379,7 @@ test_that("trimming warns when column names are not numeric", {
   )
   expect_match(
     warnings_emitted,
-    "Column names are not numeric wavelengths; band trimming skipped",
+    "Column names are not numeric wavelengths or wavenumbers; band trimming skipped",
     all = FALSE
   )
 
@@ -473,6 +473,24 @@ test_that(".exec_wav_trim errors when a required wavelength is missing", {
     proximetricsR:::.exec_wav_trim(X, step),
     "missing 1 wavelength"
   )
+})
+
+test_that(".exec_wav_trim with resolved_wavs skips when column names are not numeric", {
+  X <- matrix(1:8, nrow = 2)
+  colnames(X) <- c("a", "b", "c", "d")
+
+  step <- prep_wav_trim(band = c(), trim_constant_edges = TRUE)
+  step$resolved_wavs <- c(1100, 1200)
+
+  warnings_emitted <- testthat::capture_warnings(
+    result <- proximetricsR:::.exec_wav_trim(X, step)
+  )
+  expect_match(
+    warnings_emitted,
+    "Column names are not numeric wavelengths or wavenumbers; band trimming skipped",
+    all = FALSE
+  )
+  expect_equal(ncol(result), ncol(X))
 })
 
 test_that(".freeze_trim_steps records the surviving wavelengths of an edge-trim step", {

@@ -360,3 +360,25 @@ test_that("constant-edge trimming is frozen at calibration and keeps newdata ali
     "missing"
   )
 })
+
+test_that("predict errors clearly when newdata lacks model spectral variables", {
+  skip_on_cran()
+
+  m0 <- suppressWarnings(calibrate(
+    X, Y,
+    preprocess = preprocess_recipe(), method = fit_plsr(5, "standard"),
+    control = control, verbose = FALSE
+  ))
+
+  # Named matrix missing one required wavelength.
+  expect_error(
+    predict(m0, X[, -5], verbose = FALSE),
+    "is missing 1 spectral variable"
+  )
+
+  # Unnamed matrix: colnames() is NULL, so the guard must still fire.
+  expect_error(
+    predict(m0, unname(X), verbose = FALSE),
+    "spectral variable"
+  )
+})
