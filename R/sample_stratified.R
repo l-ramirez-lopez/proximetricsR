@@ -8,7 +8,7 @@
 #' leave-group-of-groups-out cross-validation if group argument is provided).
 #' @param y a matrix of one column with the response variable.
 #' @param p the percentage of samples (or groups if group argument is used) to
-#' retain in the validation_indices set
+#' retain in the calibration_indices set
 #' @param number the number of sample groups to be crated
 #' @param group the labels for each sample in \code{y} indicating the group each
 #' observation belongs to.
