@@ -2440,6 +2440,9 @@ val_ncomp <- as.numeric(gsub("ncomp_", "", names(validations$validation)))
 ctrl <- validations$control_limits
 q_limits <- if (is.null(ctrl$q)) rep(NA_real_, n_vals) else ctrl$q
 lev_limits <- if (is.null(ctrl$leverage)) rep(NA_real_, n_vals) else ctrl$leverage
+# non-positive limits cannot be a denominator; treat as unavailable (plot raw)
+q_limits[!is.finite(q_limits) | q_limits <= 0] <- NA_real_
+lev_limits[!is.finite(lev_limits) | lev_limits <= 0] <- NA_real_
 conf_pct <- format((if (is.null(ctrl$conf)) 0.95 else ctrl$conf) * 100, trim = TRUE, scientific = FALSE)
 
 # When a limit is available the statistic is plotted relative to it (a dotted
