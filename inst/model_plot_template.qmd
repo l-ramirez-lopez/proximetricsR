@@ -2440,12 +2440,15 @@ val_ncomp <- as.numeric(gsub("ncomp_", "", names(validations$validation)))
 ctrl <- validations$control_limits
 q_limits <- if (is.null(ctrl$q)) rep(NA_real_, n_vals) else ctrl$q
 lev_limits <- if (is.null(ctrl$leverage)) rep(NA_real_, n_vals) else ctrl$leverage
-conf_pct <- round((if (is.null(ctrl$conf)) 0.95 else ctrl$conf) * 100)
+conf_pct <- format((if (is.null(ctrl$conf)) 0.95 else ctrl$conf) * 100, trim = TRUE, scientific = FALSE)
 
-# Leverage and Q are plotted relative to their limits, so the limit is a dotted
-# line at 1 on both axes.
-rel_lev <- function(i) as.vector(validations$validation[[i]]$val_results[, "mahalanobis"]) / lev_limits[i]
-rel_q <- function(i) as.vector(validations$validation[[i]]$val_results[, "q_residual"]) / q_limits[i]
+# When a limit is available the statistic is plotted relative to it (a dotted
+# line at 1); if it is missing (e.g. an older validation object) the raw
+# statistic is plotted with no limit line.
+rel_lev <- function(i) as.vector(validations$validation[[i]]$val_results[, "mahalanobis"]) / (if (is.finite(lev_limits[i])) lev_limits[i] else 1)
+rel_q <- function(i) as.vector(validations$validation[[i]]$val_results[, "q_residual"]) / (if (is.finite(q_limits[i])) q_limits[i] else 1)
+x_title <- if (any(is.finite(lev_limits))) paste0("Leverage / ", conf_pct, "% limit") else "Leverage (Mahalanobis)"
+y_title <- if (any(is.finite(q_limits))) paste0("Q residual / ", conf_pct, "% limit") else "Spectral residual Q"
 
 # Grey axes at the origin.
 origin_shapes <- list(
@@ -2537,8 +2540,8 @@ for (i in seq_len(n_vals)) {
 
 fig <- fig |>
   layout(
-    xaxis = list(title = paste0("Leverage / ", conf_pct, "% limit"), titlefont = list(color = "#7f7f7f")),
-    yaxis = list(title = paste0("Q residual / ", conf_pct, "% limit"), titlefont = list(color = "#7f7f7f")),
+    xaxis = list(title = x_title, titlefont = list(color = "#7f7f7f")),
+    yaxis = list(title = y_title, titlefont = list(color = "#7f7f7f")),
     shapes = origin_shapes,
     annotations = limit_annotations(val_opt_idx)
   )
