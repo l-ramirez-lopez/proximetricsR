@@ -31,6 +31,10 @@ the predicted values and the corresponding errors in a matrix, while
 (\mjeqn{R^2}{R^2}), root mean squared error (\code{RMSE}) and the largest
 residual obtained. These statistics are computed based on the \code{prediction}
 and \code{reference}, while ignoring any \code{NA}'s.
+\item \strong{\code{control_limits}:} A list carried over from the
+\code{prediction} with the per-component control limits used by the
+leverage-vs-Q plot: \code{q} (spectral residual Q limits), \code{leverage}
+(leverage limits) and \code{conf} (their confidence level).
 }
 }
 \description{

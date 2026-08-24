@@ -29,6 +29,10 @@
 #'     (\mjeqn{R^2}{R^2}), root mean squared error (\code{RMSE}) and the largest
 #'     residual obtained. These statistics are computed based on the \code{prediction}
 #'     and \code{reference}, while ignoring any \code{NA}'s.
+#'     \item \strong{\code{control_limits}:} A list carried over from the
+#'     \code{prediction} with the per-component control limits used by the
+#'     leverage-vs-Q plot: \code{q} (spectral residual Q limits), \code{leverage}
+#'     (leverage limits) and \code{conf} (their confidence level).
 #' }
 #' @author Claudio Orellano
 #'
@@ -118,6 +122,14 @@ validate_prediction <- function(prediction, reference) {
     }
   }
   result <- list(model_information = prediction$model_information, validation = validation, reference = reference)
+  # Carry the calibration-derived control limits (computed in predict) so the
+  # plot template can draw them without touching the package namespace. Aligned
+  # to the validation entries by prediction column order.
+  result$control_limits <- list(
+    q = prediction$q_limit,
+    leverage = prediction$leverage_limit,
+    conf = prediction$control_limit_conf
+  )
   class(result) <- c("spectral_validation", "list")
   result
 }
