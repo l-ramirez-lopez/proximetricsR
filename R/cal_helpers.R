@@ -31,6 +31,35 @@
   sweep(diss, MARGIN = 2, STATS = ncomp, FUN = "/")
 }
 
+#' @title Leverage (Mahalanobis) limit for a new observation
+#' @description
+#' Upper control limit for the \code{ncomp}-normalized Mahalanobis leverage
+#' produced by \code{\link{.gh_distance}}, for an observation that was \emph{not}
+#' part of the calibration set. For a model with \code{ncomp} components fitted
+#' on \code{n} calibration samples, the squared Mahalanobis distance of a new
+#' observation has upper limit
+
+#'  \mjeqn{\frac{p(n+1)(n-1)}{n(n-p)} F_{\alpha; p,\, n-p}}{p(n+1)(n-1)/(n(n-p)) F}.
+
+#' Dividing by \code{p = ncomp} (the leverage normalization) gives the limit
+#' returned here. Unlike an in-sample limit, this grows as \code{ncomp}
+#' approaches \code{n}, reflecting the wider spread expected of new samples.
+#' @param n the number of calibration observations.
+#' @param ncomp the number of components.
+#' @param conf the confidence level of the limit (default \code{0.95}).
+#' @references
+#' De Maesschalck, Roy, Delphine Jouan-Rimbaud, and Désiré L. Massart. "The mahalanobis distance."
+#' Chemometrics and intelligent laboratory systems 50.1 (2000): 1-18.
+#' @return A single numeric upper limit, or \code{NA_real_} if it cannot be
+#' computed (non-finite inputs, or \code{ncomp} not in \code{1:(n - 1)}).
+#' @keywords internal
+.leverage_limit <- function(n, ncomp, conf = 0.95) {
+  if (!is.finite(n) || !is.finite(ncomp) || ncomp < 1 || ncomp >= n) {
+    return(NA_real_)
+  }
+  (n^2 - 1) / (n * (n - ncomp)) * stats::qf(conf, ncomp, n - ncomp)
+}
+
 #' @title Computes the NIRWise QVAL statistic
 #' @description
 #' QVAL indicates how different the predicted response variable (y) in

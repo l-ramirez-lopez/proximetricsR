@@ -2436,21 +2436,55 @@ if (val_selection[2]) cat("### Leverage vs. Spectral Residual\n\n")
 n_vals <- length(validations$validation)
 n_val_groups <- if (has_val_group) length(levels(val_group_factor)) else 1L
 val_ncomp <- as.numeric(gsub("ncomp_", "", names(validations$validation)))
+
+ctrl <- validations$control_limits
+q_limits <- if (is.null(ctrl$q)) rep(NA_real_, n_vals) else ctrl$q
+lev_limits <- if (is.null(ctrl$leverage)) rep(NA_real_, n_vals) else ctrl$leverage
+conf_pct <- round((if (is.null(ctrl$conf)) 0.95 else ctrl$conf) * 100)
+
+# Leverage and Q are plotted relative to their limits, so the limit is a dotted
+# line at 1 on both axes.
+rel_lev <- function(i) as.vector(validations$validation[[i]]$val_results[, "mahalanobis"]) / lev_limits[i]
+rel_q <- function(i) as.vector(validations$validation[[i]]$val_results[, "q_residual"]) / q_limits[i]
+
+# Grey axes at the origin.
+origin_shapes <- list(
+  list(type = "line", x0 = 0, x1 = 0, y0 = 0, y1 = 1, yref = "paper", line = list(width = 1, color = "grey")),
+  list(type = "line", x0 = 0, x1 = 1, xref = "paper", y0 = 0, y1 = 0, line = list(width = 1, color = "grey"))
+)
+
+limit_annotations <- function(i) {
+  ann <- list()
+  if (is.finite(q_limits[i])) {
+    ann <- c(ann, list(list(
+      x = 0, xref = "paper", xanchor = "left",
+      y = 1, yref = "y", yanchor = "bottom",
+      text = paste0("Q limit (", conf_pct, "%)"),
+      showarrow = FALSE, font = list(color = "firebrick", size = 11)
+    )))
+  }
+  if (is.finite(lev_limits[i])) {
+    ann <- c(ann, list(list(
+      x = 1, xref = "x", xanchor = "left",
+      y = 1, yref = "paper", yanchor = "top",
+      text = paste0("Leverage limit (", conf_pct, "%)"),
+      showarrow = FALSE, font = list(color = "firebrick", size = 11)
+    )))
+  }
+  ann
+}
+
 fig <- plot_ly()
 for (i in seq_len(n_vals)) {
-  nc_label <- names(validations$validation)[i]
-  leverage_i <- as.vector(validations$validation[[i]]$val_results[, "mahalanobis"])
-  q_i <- validations$validation[[i]]$val_results[, "q_residual"]
-  q_ref <- mean(final_model$model$x_residuals[, nc_label], na.rm = TRUE)
-  if (!is.finite(q_ref) || q_ref <= 0) q_ref <- 1
-  y_i <- as.vector(q_i / q_ref)
+  leverage_i <- rel_lev(i)
+  q_i <- rel_q(i)
   if (has_val_group) {
     for (gi in seq_along(levels(val_group_factor))) {
       g <- levels(val_group_factor)[gi]
       idx <- which(val_group_factor == g)
       fig <- fig |> add_markers(
         x = leverage_i[idx],
-        y = y_i[idx],
+        y = q_i[idx],
         visible = (i == val_opt_idx),
         hovertext = paste("Observation", rownames(validations$validation[[i]]$val_results)[idx]),
         name = g,
@@ -2466,7 +2500,7 @@ for (i in seq_len(n_vals)) {
   } else {
     fig <- fig |> add_markers(
       x = leverage_i,
-      y = y_i,
+      y = q_i,
       visible = (i == val_opt_idx),
       hovertext = paste("Observation", rownames(validations$validation[[i]]$val_results)),
       showlegend = FALSE,
@@ -2478,35 +2512,52 @@ for (i in seq_len(n_vals)) {
   }
 }
 
+# Dotted limit lines at 1 (hoverable): one leverage + one Q per component,
+# appended after all markers and toggled by the slider like the markers.
+for (i in seq_len(n_vals)) {
+  x_max <- max(c(rel_lev(i), 1), na.rm = TRUE)
+  y_max <- max(c(rel_q(i), 1), na.rm = TRUE)
+  fig <- fig |> add_trace(
+    x = if (is.finite(lev_limits[i])) rep(1, 20) else rep(NA, 20),
+    y = seq(0, y_max, length.out = 20),
+    visible = (i == val_opt_idx), showlegend = FALSE,
+    text = paste0("Leverage limit (", conf_pct, "%)"),
+    hoverinfo = "text", type = "scatter", mode = "lines",
+    line = list(width = 1, dash = "dash", color = "firebrick")
+  )
+  fig <- fig |> add_trace(
+    x = seq(0, x_max, length.out = 20),
+    y = if (is.finite(q_limits[i])) rep(1, 20) else rep(NA, 20),
+    visible = (i == val_opt_idx), showlegend = FALSE,
+    text = paste0("Q limit (", conf_pct, "%)"),
+    hoverinfo = "text", type = "scatter", mode = "lines",
+    line = list(width = 1, dash = "dash", color = "firebrick")
+  )
+}
+
 fig <- fig |>
   layout(
-    xaxis = list(title = "Leverage (Mahalanobis)", titlefont = list(color = "#7f7f7f")),
-    yaxis = list(title = "Spectral Residual Q", titlefont = list(color = "#7f7f7f")),
-    shapes = list(
-      list(
-        type = "line", x0 = 0, x1 = 0, y0 = 0, y1 = 1, yref = "paper",
-        line = list(width = 1, color = "grey")
-      ),
-      list(
-        type = "line", x0 = 0, x1 = 1, xref = "paper", y0 = 0, y1 = 0,
-        line = list(width = 1, color = "grey")
-      )
-    )
+    xaxis = list(title = paste0("Leverage / ", conf_pct, "% limit"), titlefont = list(color = "#7f7f7f")),
+    yaxis = list(title = paste0("Q residual / ", conf_pct, "% limit"), titlefont = list(color = "#7f7f7f")),
+    shapes = origin_shapes,
+    annotations = limit_annotations(val_opt_idx)
   )
 if (n_vals > 1) {
   n_marker_traces <- if (has_val_group) n_vals * n_val_groups else n_vals
   val_steps2 <- list()
   for (i in seq_len(n_vals)) {
-    vis <- rep(FALSE, n_marker_traces)
+    vis <- rep(FALSE, n_marker_traces + 2 * n_vals)
     if (has_val_group) {
       marker_start <- (i - 1) * n_val_groups + 1
       vis[marker_start:(marker_start + n_val_groups - 1)] <- TRUE
     } else {
       vis[i] <- TRUE
     }
+    lim_start <- n_marker_traces + 2 * (i - 1) + 1
+    vis[lim_start:(lim_start + 1)] <- TRUE
     val_steps2[[i]] <- list(
-      args = list("visible", vis),
-      method = "restyle",
+      args = list(list(visible = vis), list(annotations = limit_annotations(i))),
+      method = "update",
       label = paste("Component", val_ncomp[i]),
       value = as.character(i)
     )

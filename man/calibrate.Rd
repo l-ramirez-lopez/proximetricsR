@@ -25,7 +25,7 @@
           verbose = TRUE,
           ...)
 
-\method{predict}{spectral_model}(object, newdata, ncomp = object$final_ncomp, verbose = TRUE, ...)
+\method{predict}{spectral_model}(object, newdata, ncomp = object$final_ncomp, verbose = TRUE, control_limit_conf = 0.99, ...)
 }
 \arguments{
 \item{...}{not currently used.}
@@ -94,6 +94,11 @@ a matrix of spectra.}
 \item{ncomp}{a vector for the number of components to be used in the prediction.
 Default is \code{object$final_ncomp} i.e. the optimized number of components
 found in the object passed to \code{predict}.}
+
+\item{control_limit_conf}{the confidence level for the leverage and spectral
+residual (Q) control limits returned with the prediction and used by the
+validation plot. A single number strictly between 0 and 1. Default is
+\code{0.99}.}
 
 \item{na_action}{a function to specify the action to be taken if \code{NA}s are
 found in the object passed in \code{data}. Default is \code{\link{na.pass}}.}
@@ -223,6 +228,14 @@ requested number of components (\code{ncomp}).
 \item \strong{\code{scores}}: A matrix with the projected new data onto the
 score space of the provided model. Contains the scores of all possible
 number of components.
+\item \strong{\code{q_limit}}: A named vector (one value per requested
+component) with the upper control limit for the spectral residual Q, taken
+as the calibration quantile at \code{control_limit_conf}.
+\item \strong{\code{leverage_limit}}: A named vector (one value per
+requested component) with the upper control limit for the leverage
+(Mahalanobis distance) of a new observation at \code{control_limit_conf}.
+\item \strong{\code{control_limit_conf}}: The confidence level of
+\code{q_limit} and \code{leverage_limit}.
 \item \strong{\code{model_information}}: A list, containing information on the
 model input of \code{object}: \itemize{
 \item \strong{\code{target_var}}: A character, indicating the name of the

@@ -42,6 +42,21 @@ test_that("The spectral (Q) residual is carried over from the prediction into th
   }
 })
 
+test_that("The calibration control limits are carried over from the prediction", {
+  expect_type(val$control_limits, "list")
+  expect_named(val$control_limits, c("q", "leverage", "conf"))
+  expect_identical(val$control_limits$q, pred1$q_limit)
+  expect_identical(val$control_limits$leverage, pred1$leverage_limit)
+  expect_identical(val$control_limits$conf, pred1$control_limit_conf)
+})
+
+test_that("The control limits are aligned to the validation entries", {
+  expect_length(val$control_limits$q, length(val$validation))
+  expect_length(val$control_limits$leverage, length(val$validation))
+  expect_named(val$control_limits$q, names(val$validation))
+  expect_named(val$control_limits$leverage, names(val$validation))
+})
+
 test_that("Not available target values are correctly ignored", {
   Y_new <- matrix(c(NIRcannabis$THCA[1:5], rep(NA, 5)))
   colnames(Y_new) <- "THCA"

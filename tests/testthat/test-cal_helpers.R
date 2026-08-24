@@ -38,3 +38,41 @@ test_that(".gh_distance values match a hand-computed Mahalanobis distance", {
   ) / 3
   expect_equal(unname(out[, 1]), unname(expected))
 })
+
+###################
+# .leverage_limit #
+###################
+
+test_that(".leverage_limit reproduces the new-observation leverage formula", {
+  n <- 50
+  for (p in c(1, 5, 20)) {
+    expected <- (n^2 - 1) / (n * (n - p)) * qf(0.95, p, n - p)
+    expect_equal(.leverage_limit(n, p), expected)
+  }
+})
+
+test_that(".leverage_limit honours the requested confidence level", {
+  expect_gt(.leverage_limit(50, 5, conf = 0.99), .leverage_limit(50, 5, conf = 0.95))
+  expect_equal(.leverage_limit(50, 5, conf = 0.99), (50^2 - 1) / (50 * 45) * qf(0.99, 5, 45))
+})
+
+test_that(".leverage_limit grows as the components approach the sample size", {
+  n <- 50
+  # More components -> fewer residual df -> a wider (larger) new-observation limit.
+  expect_gt(.leverage_limit(n, 45), .leverage_limit(n, 5))
+})
+
+test_that(".leverage_limit is a positive scalar", {
+  out <- .leverage_limit(40, 3)
+  expect_length(out, 1L)
+  expect_true(is.finite(out))
+  expect_gt(out, 0)
+})
+
+test_that(".leverage_limit returns NA when it cannot be computed", {
+  expect_true(is.na(.leverage_limit(NA, 3)))
+  expect_true(is.na(.leverage_limit(50, NA)))
+  expect_true(is.na(.leverage_limit(50, 0)))   # ncomp < 1
+  expect_true(is.na(.leverage_limit(50, 50)))  # ncomp == n
+  expect_true(is.na(.leverage_limit(50, 60)))  # ncomp > n
+})

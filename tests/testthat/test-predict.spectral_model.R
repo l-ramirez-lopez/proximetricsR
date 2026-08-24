@@ -118,7 +118,10 @@ test_that("Predictions with formula from a data.frame is of class 'spectral_pred
 })
 
 test_that("Predictions with formula from a data.frame is named correctly", {
-  expect_named(predictions_df_form, c("predictions", "scores", "mahalanobis", "q_residual", "model_information"))
+  expect_named(predictions_df_form, c(
+    "predictions", "scores", "mahalanobis", "q_residual",
+    "q_limit", "leverage_limit", "control_limit_conf", "model_information"
+  ))
 })
 
 test_that("Model information of predictions with formula from a data.frame is correct", {
@@ -186,6 +189,74 @@ test_that("Predicting a single new sample does not error and returns proper matr
   expect_identical(dim(single_pred$q_residual), c(1L, 6L))
 })
 
+####################################################
+# CONTROL LIMITS (Q / leverage) CARRIED BY PREDICT #
+####################################################
+
+test_that("Control limits are one per requested component and named accordingly", {
+  expect_length(predictions_df_form$q_limit, ncol(predictions_df_form$predictions))
+  expect_length(predictions_df_form$leverage_limit, ncol(predictions_df_form$predictions))
+  expect_named(predictions_df_form$q_limit, colnames(predictions_df_form$predictions))
+  expect_named(predictions_df_form$leverage_limit, colnames(predictions_df_form$predictions))
+})
+
+test_that("Control limits are finite, positive and use the 99% confidence", {
+  expect_true(all(is.finite(predictions_df_form$q_limit)))
+  expect_true(all(is.finite(predictions_df_form$leverage_limit)))
+  expect_true(all(predictions_df_form$q_limit > 0))
+  expect_true(all(predictions_df_form$leverage_limit > 0))
+  expect_identical(predictions_df_form$control_limit_conf, 0.99)
+})
+
+test_that("Q limit is the calibration 99th percentile; leverage limit is the new-observation Mahalanobis limit", {
+  cal_q <- model_form$final_model$model$x_residuals
+  n_cal <- model_form$final_model$model$n_observations
+  for (nc in 1:6) {
+    expect_equal(
+      unname(predictions_df_form$q_limit[nc]),
+      unname(quantile(cal_q[, nc], 0.99))
+    )
+    expect_equal(
+      unname(predictions_df_form$leverage_limit[nc]),
+      .leverage_limit(n_cal, nc, 0.99)
+    )
+  }
+})
+
+test_that("Control limits only cover the requested components (aligned to ncomp)", {
+  # ncomp = 4:10 -> the fourth column's limit equals the 4-component calibration limit.
+  cal_q <- model_xy$final_model$model$x_residuals
+  expect_equal(
+    unname(predictions_mat_mat$q_limit["ncomp_4"]),
+    unname(quantile(cal_q[, 4], 0.99))
+  )
+  expect_named(predictions_mat_mat$q_limit, colnames(predictions_mat_mat$predictions))
+})
+
+test_that("control_limit_conf is configurable and flows into the limits", {
+  cal_q <- model_form$final_model$model$x_residuals
+  n_cal <- model_form$final_model$model$n_observations
+  pred90 <- predict(
+    model_form, dat[skiped_ind[1:5], , drop = FALSE],
+    ncomp = 1:6, verbose = FALSE, control_limit_conf = 0.90
+  )
+  expect_identical(pred90$control_limit_conf, 0.90)
+  for (nc in 1:6) {
+    expect_equal(unname(pred90$q_limit[nc]), unname(quantile(cal_q[, nc], 0.90)))
+    expect_equal(unname(pred90$leverage_limit[nc]), .leverage_limit(n_cal, nc, 0.90))
+  }
+  # A lower confidence must give tighter (smaller) limits than the default 0.99.
+  expect_true(all(pred90$leverage_limit < predictions_df_form$leverage_limit))
+})
+
+test_that("control_limit_conf must be a single number strictly between 0 and 1", {
+  nd <- dat[skiped_ind[1:5], , drop = FALSE]
+  expect_error(predict(model_form, nd, verbose = FALSE, control_limit_conf = 1), "between 0 and 1")
+  expect_error(predict(model_form, nd, verbose = FALSE, control_limit_conf = 0), "between 0 and 1")
+  expect_error(predict(model_form, nd, verbose = FALSE, control_limit_conf = c(0.9, 0.95)), "between 0 and 1")
+  expect_error(predict(model_form, nd, verbose = FALSE, control_limit_conf = "0.95"), "between 0 and 1")
+})
+
 #########################################################################
 # PREDICTIONS OF predictions_mat_form CORRESPOND TO predictions_df_form #
 #########################################################################
@@ -232,7 +303,10 @@ test_that("Predictions with matrices from a matrix is of class 'spectral_predict
 })
 
 test_that("Predictions with matrices from a matrix is named correctly", {
-  expect_named(predictions_mat_mat, c("predictions", "scores", "mahalanobis", "q_residual", "model_information"))
+  expect_named(predictions_mat_mat, c(
+    "predictions", "scores", "mahalanobis", "q_residual",
+    "q_limit", "leverage_limit", "control_limit_conf", "model_information"
+  ))
 })
 
 test_that("Model information of predictions with matrices from a matrix is correct", {

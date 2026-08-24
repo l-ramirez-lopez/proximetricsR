@@ -264,6 +264,7 @@ List estimate_all_pls(arma::mat X, arma::mat Y, List method) {
     weights.each_col() %= y_loadings;
     scores.each_row() %= trans(y_loadings);
     x_loadings.each_col() /= y_loadings;
+    projection_m.each_col() %= y_loadings; // keep projection_m consistent with rescaled scores
   }
   arma::mat sd_scores = arma::stddev(scores, 0, 0);
   arma::mat scaled_scores = scores.each_row() / sd_scores;
