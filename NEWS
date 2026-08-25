@@ -7,6 +7,10 @@ proximetricsR 0.7.1 "Valinhos"
 * Misc: group argument checking for `sample_group` and `validation_group` refactored into a single internal helper.
 * Fix: `predict.spectral_model()` no longer misaligns `newdata` with `prep_wav_trim(trim_constant_edges = TRUE)`; the trimmed band is resolved at calibration time and reapplied deterministically.
 * Fix: the `nwp` fit method left `projection_m` out of its slope correction, so scores of new samples (and therefore their leverage and spectral residual) were wrong; predictions were unaffected.
+* Feat: `proxiscout_write_data()` also writes a `<prefix>_metadata.csv` with the sample names and any leftover columns.
+* Fix: `proxiscout_write_data()` renames the correct `SNR`/`SRN` column to `deviceId` and honours integer `spc`.
+* Fix: `proxiscout_write_data()` now writes consistent `sampleName`/`deviceId` headers across all files (the spectra file previously used `Sample Name`/`Device Id`).
+* Tests: added unit tests for `proxiscout_write_data()`.
 * Docs: documented the new arguments, validation statistics and plot, including in `model_plot_template.qmd`.
 
 proximetricsR 0.7.0 "Matterhorn2"
