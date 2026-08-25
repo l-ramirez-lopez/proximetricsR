@@ -14,8 +14,8 @@ Typically, this is returned by \code{\link{proxiscout_read_data}} and of class
 \item{path}{a character for the directory in which the files will be saved.}
 
 \item{file_prefix}{a character for the prefix of the generated files. The files
-are then named as \verb{[file_prefix]_spectra.csv} and \verb{[file_prefix]_properties.csv}.
-Default is \code{proxiscout_export}.}
+are then named as \verb{[file_prefix]_spectra.csv}, \verb{[file_prefix]_properties.csv}
+and \verb{[file_prefix]_metadata.csv}. Default is \code{proxiscout_export}.}
 
 \item{properties}{a vector of characters of arbitrary length. Which properties
 in \code{x} are to be added to the csv? Default is \code{NULL}.}
@@ -30,15 +30,17 @@ A \code{character} with the paths to the created files.
 \loadmathjax
 
 This function writes comma-separated files in a format compatible with
-ProxiScout-related software, which typically require two separate comma-separated
-files - one file for the spectra, and another file for reference values.
+ProxiScout-related software, which typically require separate comma-separated
+files - one file for the spectra, another for reference values, and a third one
+holding all remaining metadata columns.
 These files are created inside the specified directory (argument \code{path}).
 }
 \details{
-This function creates up to two comma separated files in the directory \code{path},
+This function creates up to three comma separated files in the directory \code{path},
 which are usable by ProxiScout-related software. These files are named according
 to the \code{file_prefix} argument and contain the spectra together with the sample
-names and device ID, respectively the reference values with the sample names.
+names and device ID, respectively the reference values with the sample names, and
+a metadata file with the sample names and all remaining columns.
 
 Typically, the data provided to this function is imported with \code{\link{proxiscout_read_data}}
 and of class \code{"proxiscout_data"}, but it is also possible to construct a \code{data.frame}
@@ -52,15 +54,19 @@ provided properties that only contains \code{NA} values are dropped. In general,
 
 The sample names are detected automatically from \code{x} as the column with a name
 that contains \code{"sample"}. If none are detected, the function will throw an
-error. This column will be named \code{"Sample Name"} in the \verb{[file_prefix]_spectra.csv}
-file, and \code{"sampleName"} in the \verb{[file_prefix]_properties.csv} file.
+error. This column is named \code{"sampleName"} in every file.
 
 Similarly, the device ID is a required column and is identified as having a
 \code{"device"} string inside the name of the column. This column is only written into
-the \verb{[file_prefix]_spectra.csv} file, with a fixed named \code{"Device Id"}.
+the \verb{[file_prefix]_spectra.csv} file, with a fixed name \code{"deviceId"}.
 
 All other columns in either file only correspond to the spectra respectively
-the reference values. In particular, other columns in \code{x} are dropped.
+the reference values. All columns in \code{x} that are not written to any of the
+other files - i.e. that are neither the spectra, the sample name, the device id
+nor the selected \code{properties} - are written to the \verb{[file_prefix]_metadata.csv}
+file, together with the sample names (as \code{"sampleName"}). As with the properties
+file, this metadata file is only created when there is at least one such column,
+otherwise it would only contain the sample names.
 }
 \author{
 Leonardo Ramirez-Lopez, Claudio Orellano
