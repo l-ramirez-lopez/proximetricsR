@@ -78,7 +78,9 @@ The function:
 \itemize{
 \item ensures the file extensions are valid (\code{.csv} or \code{.xlsx}).
 \item reads CSV files using \code{\link[utils]{read.csv}} and Excel files using
-\code{\link[readxl]{read_excel}}.
+\code{\link[readxl]{read_excel}}. In both cases the strings \code{""},
+\code{"-"} and \code{"NA"} are interpreted as missing values (\code{NA}), so
+that numeric columns using these as placeholders are read as numeric.
 \item extracts spectral data (columns with numeric names).
 \item if exactly 257 columns with numeric names are found, then:
 \itemize{

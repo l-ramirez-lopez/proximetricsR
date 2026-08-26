@@ -33,7 +33,7 @@
 #'           verbose = TRUE,
 #'           ...)
 #'
-#' \method{predict}{spectral_model}(object, newdata, ncomp = object$final_ncomp, verbose = TRUE, ...)
+#' \method{predict}{spectral_model}(object, newdata, ncomp = object$final_ncomp, verbose = TRUE, control_limit_conf = 0.99, ...)
 #'
 #' @param formula an object of class \code{\link[stats]{formula}} which represents the
 #' basic model to be calibrated.
@@ -85,6 +85,10 @@
 #' @param ncomp a vector for the number of components to be used in the prediction.
 #' Default is \code{object$final_ncomp} i.e. the optimized number of components
 #' found in the object passed to \code{predict}.
+#' @param control_limit_conf the confidence level for the leverage and spectral
+#' residual (Q) control limits returned with the prediction and used by the
+#' validation plot. A single number strictly between 0 and 1. Default is
+#' \code{0.99}.
 #' @param ... not currently used.
 #' @param na_action  a function to specify the action to be taken if \code{NA}s are
 #' found in the object passed in \code{data}. Default is \code{\link{na.pass}}.
@@ -215,6 +219,14 @@
 #'     \item \strong{\code{scores}}: A matrix with the projected new data onto the
 #'     score space of the provided model. Contains the scores of all possible
 #'      number of components.
+#'     \item \strong{\code{q_limit}}: A named vector (one value per requested
+#'     component) with the upper control limit for the spectral residual Q, taken
+#'     as the calibration quantile at \code{control_limit_conf}.
+#'     \item \strong{\code{leverage_limit}}: A named vector (one value per
+#'     requested component) with the upper control limit for the leverage
+#'     (Mahalanobis distance) of a new observation at \code{control_limit_conf}.
+#'     \item \strong{\code{control_limit_conf}}: The confidence level of
+#'     \code{q_limit} and \code{leverage_limit}.
 #'     \item \strong{\code{model_information}}: A list, containing information on the
 #'     model input of \code{object}: \itemize{
 #'          \item \strong{\code{target_var}}: A character, indicating the name of the
@@ -890,7 +902,9 @@ calibrate.formula <- function(formula, data, group = NULL,
 predict.spectral_model <- function(
   object, newdata,
   ncomp = object$final_ncomp,
-  verbose = TRUE, ...
+  verbose = TRUE,
+  control_limit_conf = 0.99,
+  ...
 ) {
   if (missing(newdata)) {
     stop("newdata is missing")
@@ -903,6 +917,10 @@ predict.spectral_model <- function(
   }
   if (any(!is.numeric(ncomp))) {
     stop("The component(s) for prediction must be a (vector of) numerical.")
+  }
+  if (!is.numeric(control_limit_conf) || length(control_limit_conf) != 1 ||
+    !is.finite(control_limit_conf) || control_limit_conf <= 0 || control_limit_conf >= 1) {
+    stop("'control_limit_conf' must be a single number between 0 and 1.")
   }
 
   if (ncol(object$final_model$model$scores) < max(ncomp)) {
@@ -1101,11 +1119,35 @@ predict.spectral_model <- function(
   )
   dimnames(q_residual) <- dimnames(predictions)
 
+  # Per-component control limits used by the leverage-vs-Q validation plot, which
+  # plots each statistic relative to its limit (dotted at 1). Computed here (not
+  # in the plot template, which renders in a bare subprocess without the package
+  # namespace). Leverage uses the new-observation Mahalanobis limit (see
+  # .leverage_limit()); Q uses the empirical calibration quantile.
+  cal_q <- object$final_model$model$x_residuals
+  n_cal <- object$final_model$model$n_observations
+  q_limit <- vapply(ncomp, function(nc) {
+    if (is.null(cal_q) || nc < 1 || nc > ncol(cal_q)) {
+      return(NA_real_)
+    }
+    vals <- cal_q[, nc]
+    vals <- vals[is.finite(vals)]
+    if (length(vals) < 2L) {
+      return(NA_real_)
+    }
+    unname(stats::quantile(vals, control_limit_conf))
+  }, numeric(1))
+  leverage_limit <- vapply(ncomp, function(nc) .leverage_limit(n_cal, nc, control_limit_conf), numeric(1))
+  names(q_limit) <- names(leverage_limit) <- colnames(predictions)
+
   results <- list(
     predictions = predictions,
     scores = scores,
     mahalanobis = mahalanobis,
     q_residual = q_residual,
+    q_limit = q_limit,
+    leverage_limit = leverage_limit,
+    control_limit_conf = control_limit_conf,
     model_information = model_information
   )
   class(results) <- c("spectral_prediction", "list")

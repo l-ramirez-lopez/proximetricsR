@@ -50,7 +50,9 @@
 #' The function:
 #' - ensures the file extensions are valid (\code{.csv} or \code{.xlsx}).
 #' - reads CSV files using \code{\link[utils]{read.csv}} and Excel files using
-#' \code{\link[readxl]{read_excel}}.
+#' \code{\link[readxl]{read_excel}}. In both cases the strings \code{""},
+#' \code{"-"} and \code{"NA"} are interpreted as missing values (\code{NA}), so
+#' that numeric columns using these as placeholders are read as numeric.
 #' - extracts spectral data (columns with numeric names).
 #' - if exactly 257 columns with numeric names are found, then:
 #'   \itemize{
@@ -91,11 +93,13 @@
 #' @author Leonardo Ramirez-Lopez, Claudio Orellano
 #' @export
 proxiscout_read_data <- function(file, references_file) {
+  # Strings treated as missing values in both the spectra and reference files
+  na_markers <- c("", "-", "NA")
   ext <- file_ext(file)
   if (ext == "csv") {
-    x <- read.csv(file, check.names = FALSE)
+    x <- read.csv(file, check.names = FALSE, na.strings = na_markers)
   } else if (ext == "xlsx") {
-    x <- as.data.frame(read_excel(file))
+    x <- as.data.frame(read_excel(file, na = na_markers))
   } else {
     stop(paste("Unsupported file format:", ext))
   }
@@ -130,9 +134,9 @@ proxiscout_read_data <- function(file, references_file) {
   if (!missing(references_file)) {
     ref_ext <- file_ext(references_file)
     if (ref_ext == "csv") {
-      refs <- read.csv(references_file, check.names = FALSE)
+      refs <- read.csv(references_file, check.names = FALSE, na.strings = na_markers)
     } else if (ref_ext == "xlsx") {
-      refs <- as.data.frame(read_excel(references_file, na = c("", "NA")))
+      refs <- as.data.frame(read_excel(references_file, na = na_markers))
     } else {
       stop(paste("Unsupported file format for reference file:", ref_ext))
     }

@@ -5,8 +5,9 @@
 #' \loadmathjax
 #'
 #' This function writes comma-separated files in a format compatible with
-#' ProxiScout-related software, which typically require two separate comma-separated
-#' files - one file for the spectra, and another file for reference values.
+#' ProxiScout-related software, which typically require separate comma-separated
+#' files - one file for the spectra, another for reference values, and a third one
+#' holding all remaining metadata columns.
 #' These files are created inside the specified directory (argument `path`).
 #' @usage
 #' proxiscout_write_data(x, path, file_prefix, properties = NULL, spc = "spc")
@@ -15,8 +16,8 @@
 #' `"proxiscout_data"`.
 #' @param path a character for the directory in which the files will be saved.
 #' @param file_prefix a character for the prefix of the generated files. The files
-#' are then named as `[file_prefix]_spectra.csv` and `[file_prefix]_properties.csv`.
-#' Default is `proxiscout_export`.
+#' are then named as `[file_prefix]_spectra.csv`, `[file_prefix]_properties.csv`
+#' and `[file_prefix]_metadata.csv`. Default is `proxiscout_export`.
 #' @param properties a vector of characters of arbitrary length. Which properties
 #' in \code{x} are to be added to the csv? Default is \code{NULL}.
 #' @param spc either a character or a vector of integers. Specifies where the
@@ -24,10 +25,11 @@
 #' @return A `character` with the paths to the created files.
 #'
 #' @details
-#' This function creates up to two comma separated files in the directory `path`,
+#' This function creates up to three comma separated files in the directory `path`,
 #' which are usable by ProxiScout-related software. These files are named according
 #' to the `file_prefix` argument and contain the spectra together with the sample
-#' names and device ID, respectively the reference values with the sample names.
+#' names and device ID, respectively the reference values with the sample names, and
+#' a metadata file with the sample names and all remaining columns.
 #'
 #' Typically, the data provided to this function is imported with \code{\link{proxiscout_read_data}}
 #' and of class `"proxiscout_data"`, but it is also possible to construct a `data.frame`
@@ -41,15 +43,19 @@
 #'
 #' The sample names are detected automatically from `x` as the column with a name
 #' that contains `"sample"`. If none are detected, the function will throw an
-#' error. This column will be named `"Sample Name"` in the `[file_prefix]_spectra.csv`
-#' file, and `"sampleName"` in the `[file_prefix]_properties.csv` file.
+#' error. This column is named `"sampleName"` in every file.
 #'
 #' Similarly, the device ID is a required column and is identified as having a
 #' `"device"` string inside the name of the column. This column is only written into
-#' the `[file_prefix]_spectra.csv` file, with a fixed named `"Device Id"`.
+#' the `[file_prefix]_spectra.csv` file, with a fixed name `"deviceId"`.
 #'
 #' All other columns in either file only correspond to the spectra respectively
-#' the reference values. In particular, other columns in `x` are dropped.
+#' the reference values. All columns in `x` that are not written to any of the
+#' other files - i.e. that are neither the spectra, the sample name, the device id
+#' nor the selected `properties` - are written to the `[file_prefix]_metadata.csv`
+#' file, together with the sample names (as `"sampleName"`). As with the properties
+#' file, this metadata file is only created when there is at least one such column,
+#' otherwise it would only contain the sample names.
 #'
 #' @author Leonardo Ramirez-Lopez, Claudio Orellano
 #' @export
@@ -70,7 +76,7 @@ proxiscout_write_data <- function(x, path, file_prefix = "proxiscout_export", pr
   }
   # If x contains no column with "device" or "scanner", but a column SNR/SRN, rename it to deviceId
   if (!any(grepl("^(device|scanner)", colnames(x), ignore.case = TRUE)) && any(c("SNR", "SRN") %in% colnames(x))) {
-    colnames(x)[which(c("SNR", "SRN") %in% colnames(x))[1]] <- "deviceId"
+    colnames(x)[which(colnames(x) %in% c("SNR", "SRN"))[1]] <- "deviceId"
   }
   # Find the sample and device/scanner columns
   sample_col_index <- which(grepl("sample", colnames(x), ignore.case = TRUE))
@@ -83,13 +89,16 @@ proxiscout_write_data <- function(x, path, file_prefix = "proxiscout_export", pr
   device_col <- x[, device_col_index[1]]
 
 
-  # Write the spectra file, containing columns "Sample Name", "Device Id", and
+  # Write the spectra file, containing columns "sampleName", "deviceId", and
   # columns with numerical values in the header for the spectra
   file_paths <- file.path(path, paste0(file_prefix, "_spectra.csv"))
+  # `spc` is either the name of a (matrix) column holding the spectra or a vector
+  # of column indices; resolve it to a numeric matrix either way
+  spc_data <- if (is.character(spc)) x[[spc]] else as.matrix(x[, spc, drop = FALSE])
   spectra_df <- data.frame(
-    "Sample Name" = sample_col,
-    "Device Id" = device_col,
-    x[[spc]] * 100, # Multiply by 100; to have values between 0 and 100
+    "sampleName" = sample_col,
+    "deviceId" = device_col,
+    spc_data * 100, # Multiply by 100; to have values between 0 and 100
     check.names = FALSE
   )
 
@@ -110,6 +119,36 @@ proxiscout_write_data <- function(x, path, file_prefix = "proxiscout_export", pr
       na = ""
     )
   }
+
+  # Write the metadata file, containing the sample names together with all columns
+  # of x that are not written to any of the other files, i.e. that are neither the
+  # spectra, the sample name, the device id nor the specified properties. As with
+  # the properties file, it is only created when there is at least one such column,
+  # otherwise it would only contain the sample names.
+  # Determine the spectra columns, which are excluded from the metadata
+  spc_col_index <- if (is.character(spc)) which(colnames(x) %in% spc) else spc
+  # All remaining columns: exclude the spectra, the sample, the device and the
+  # property columns, which are already written to the other files
+  metadata_col_index <- setdiff(
+    seq_len(ncol(x)),
+    c(spc_col_index, sample_col_index[1], device_col_index[1], which(colnames(x) %in% properties))
+  )
+  if (length(metadata_col_index) > 0) {
+    file_paths <- c(file_paths, file.path(path, paste0(file_prefix, "_metadata.csv")))
+    metadata_df <- data.frame(
+      "sampleName" = sample_col,
+      x[, metadata_col_index, drop = FALSE],
+      check.names = FALSE
+    )
+    write.csv(
+      metadata_df,
+      file = file_paths[length(file_paths)],
+      row.names = FALSE,
+      quote = FALSE,
+      na = ""
+    )
+  }
+
   write.csv(
     spectra_df,
     file = file_paths[1],

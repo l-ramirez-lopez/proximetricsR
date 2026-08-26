@@ -6,9 +6,18 @@ proximetricsR 0.7.1 "Valinhos"
 * Docs: `proximateCannabis` and `proxiscoutCannabis` cross-reference each other, noting that they share neither samples nor reference values.
 * Feat: validation results now include the Mahalanobis (GH) distance, computed from scaled PLS scores, and the spectral (X-space) residual for each sample. Both are returned by `calibrate_models()` and `validate_prediction()` and are available for downstream analysis.
 * Feat: `plot.spectral_model()` gained a `validation_group` argument to colour validation samples by group, for example by instrument.
-* Feat: new "Leverage vs. Spectral Residual" validation plot, showing Mahalanobis distance against normalised spectral residuals, with grouped colouring.
+* Feat: new "Leverage vs. Spectral Residual" validation plot, showing each sample's leverage and spectral residual relative to their control limits (dashed line at 1), with grouped colouring.
+* Feat: `predict.spectral_model()` returns per-component control limits for the leverage (new-observation Mahalanobis limit) and spectral residual Q (calibration quantile), configurable via `control_limit_conf` (default 0.99) and carried through `validate_prediction()`.
 * Misc: group argument checking for `sample_group` and `validation_group` refactored into a single internal helper.
 * Fix: `predict.spectral_model()` no longer misaligns `newdata` with `prep_wav_trim(trim_constant_edges = TRUE)`; the trimmed band is resolved at calibration time and reapplied deterministically.
+* Fix: the `nwp` fit method left `projection_m` out of its slope correction, so scores of new samples (and therefore their leverage and spectral residual) were wrong; predictions were unaffected.
+* Feat: `proxiscout_write_data()` also writes a `<prefix>_metadata.csv` with the sample names and any leftover columns.
+* Fix: `proxiscout_write_data()` renames the correct `SNR`/`SRN` column to `deviceId` and honours integer `spc`.
+* Fix: `proxiscout_write_data()` now writes consistent `sampleName`/`deviceId` headers across all files (the spectra file previously used `Sample Name`/`Device Id`).
+* Tests: added unit tests for `proxiscout_write_data()`.
+* Fix: `proxiscout_read_data()` now treats `""`, `"-"` and `"NA"` as missing values when reading CSV and XLSX files, so numeric columns using these placeholders are read as numeric.
+* Fix: `extract_property_names()` no longer returns the internal `.repetition_group` column as a property for `proxiscout_data`.
+* Tests: added unit tests for `extract_property_names()` and the missing-value handling in `proxiscout_read_data()`.
 * Docs: documented the new arguments, validation statistics and plot, including in `model_plot_template.qmd`.
 
 proximetricsR 0.7.0 "Matterhorn2"

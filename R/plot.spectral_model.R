@@ -180,11 +180,15 @@
 #'     prediction and validation process.
 #'     \item {\strong{Leverage vs. Spectral Residual*}:} A points plot of the
 #'     Mahalanobis distance (leverage) of each validated sample against its
-#'     spectral (X-space) residual, normalized by the calibration set's own
-#'     average residual for the same number of components. Not to be confused
-#'     with the \strong{Leverage vs Residuals} plot in the \code{regression}
-#'     section, which uses the classical (univariate) leverage of the fitted
-#'     response instead.
+#'     spectral (X-space) residual (Q). Both statistics are shown relative to
+#'     their control limits (the leverage limit and the Q limit reported by
+#'     \code{\link[=predict.spectral_model]{predict}} at its
+#'     \code{control_limit_conf}), so the limit is a dotted line at 1 on each
+#'     axis and samples beyond 1 exceed the limit. When those limits are
+#'     unavailable the raw statistics are plotted without limit lines. Not to be
+#'     confused with the \strong{Leverage vs Residuals} plot in the
+#'     \code{regression} section, which uses the classical (univariate) leverage
+#'     of the fitted response instead.
 #'     }
 #'
 #' Most of above plots contain a slider, which may be used to adjust the considered
