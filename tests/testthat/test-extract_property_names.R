@@ -33,6 +33,19 @@ test_that("proxiscout_data: internal .repetition_group column is excluded", {
   expect_equal(props, "moisture")
 })
 
+test_that("proxiscout_data: exclusion of .repetition_group does not over-match similar names", {
+  # The '.' in the exclusion pattern is escaped, so only the literal
+  # .repetition_group column is dropped, not e.g. 'xrepetition_group'.
+  x <- make_proxiscout(
+    moisture = c(10, 20),
+    "xrepetition_group" = c(3, 4),
+    ".repetition_group" = c(1L, 2L)
+  )
+  props <- extract_property_names(x)
+  expect_true("xrepetition_group" %in% props)
+  expect_false(".repetition_group" %in% props)
+})
+
 test_that("proxiscout_data: standard metadata columns are excluded (various casing/separators)", {
   x <- make_proxiscout(
     ID = c("A", "B"),

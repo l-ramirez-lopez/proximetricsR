@@ -83,7 +83,7 @@ extract_property_names <- function(x) {
       "device",
       "spc",
       "predictions",
-      ".repetition_group"
+      "\\.repetition_group"
     )
 
     # Combine patterns into single regex

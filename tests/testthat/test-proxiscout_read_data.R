@@ -331,6 +331,31 @@ test_that("csv read converts '-', 'NA' and blank markers to numeric NA", {
   expect_equal(as.numeric(result_csv_na$fat), c(1.5, NA, 2.5))
 })
 
+test_that("two-file merge: '-' / 'NA' markers in the references file are read as numeric NA", {
+  x_spec <- data.frame(
+    SampleID = c("A", "B", "C"),
+    "3921" = c(50.1, 48.3, 47.0),
+    "3942" = c(51.2, 49.1, 48.5),
+    check.names = FALSE
+  )
+  refs_path <- tempfile(fileext = ".csv")
+  writeLines(
+    c(
+      "SampleID,moisture,protein",
+      "A,10,5",
+      "B,-,6",
+      "C,30,NA"
+    ),
+    refs_path
+  )
+  result <- proxiscout_read_data(write_spec_csv(x_spec), refs_path)
+
+  expect_true(is.numeric(result$moisture))
+  expect_equal(as.numeric(result$moisture), c(10, NA, 30))
+  expect_true(is.numeric(result$protein))
+  expect_equal(as.numeric(result$protein), c(5, 6, NA))
+})
+
 test_that("two-file merge: errors when no common or id-like column can be found", {
   x6 <- data.frame(
     Foo = c("x", "y"),
