@@ -11,6 +11,9 @@ proximetricsR 0.7.1 "Valinhos"
 * Fix: `proxiscout_write_data()` renames the correct `SNR`/`SRN` column to `deviceId` and honours integer `spc`.
 * Fix: `proxiscout_write_data()` now writes consistent `sampleName`/`deviceId` headers across all files (the spectra file previously used `Sample Name`/`Device Id`).
 * Tests: added unit tests for `proxiscout_write_data()`.
+* Fix: `proxiscout_read_data()` now treats `""`, `"-"` and `"NA"` as missing values when reading CSV and XLSX files, so numeric columns using these placeholders are read as numeric.
+* Fix: `extract_property_names()` no longer returns the internal `.repetition_group` column as a property for `proxiscout_data`.
+* Tests: added unit tests for `extract_property_names()` and the missing-value handling in `proxiscout_read_data()`.
 * Docs: documented the new arguments, validation statistics and plot, including in `model_plot_template.qmd`.
 
 proximetricsR 0.7.0 "Matterhorn2"
