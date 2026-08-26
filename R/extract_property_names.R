@@ -43,6 +43,8 @@
 #'   \item{}{`device`}
 #'   \item{}{`spc`}
 #'   \item{}{`predictions`}
+#'   \item{}{`.repetition_group` (internal column added by
+#'           \code{\link{proxiscout_read_data}})}
 #' }
 #'
 #' If `x` is of neither class, all columns with numerical values are considered to be properties
@@ -80,7 +82,8 @@ extract_property_names <- function(x) {
       "supplier",
       "device",
       "spc",
-      "predictions"
+      "predictions",
+      ".repetition_group"
     )
 
     # Combine patterns into single regex

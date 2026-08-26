@@ -50,7 +50,9 @@
 #' The function:
 #' - ensures the file extensions are valid (\code{.csv} or \code{.xlsx}).
 #' - reads CSV files using \code{\link[utils]{read.csv}} and Excel files using
-#' \code{\link[readxl]{read_excel}}.
+#' \code{\link[readxl]{read_excel}}. In both cases the strings \code{""},
+#' \code{"-"} and \code{"NA"} are interpreted as missing values (\code{NA}), so
+#' that numeric columns using these as placeholders are read as numeric.
 #' - extracts spectral data (columns with numeric names).
 #' - if exactly 257 columns with numeric names are found, then:
 #'   \itemize{
@@ -93,9 +95,9 @@
 proxiscout_read_data <- function(file, references_file) {
   ext <- file_ext(file)
   if (ext == "csv") {
-    x <- read.csv(file, check.names = FALSE)
+    x <- read.csv(file, check.names = FALSE, na.strings = c("", "-", "NA"))
   } else if (ext == "xlsx") {
-    x <- as.data.frame(read_excel(file))
+    x <- as.data.frame(read_excel(file, na = c("", "-", "NA")))
   } else {
     stop(paste("Unsupported file format:", ext))
   }

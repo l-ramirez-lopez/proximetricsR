@@ -54,6 +54,8 @@ following, case-insensitive regex (each wrapped by \code{^} and \code{$}):
 \item{}{\code{device}}
 \item{}{\code{spc}}
 \item{}{\code{predictions}}
+\item{}{\code{.repetition_group} (internal column added by
+\code{\link{proxiscout_read_data}})}
 }
 
 If \code{x} is of neither class, all columns with numerical values are considered to be properties
