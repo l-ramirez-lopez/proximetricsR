@@ -1,11 +1,11 @@
 # Test suite for proxiscout_write_model() and helper functions
 # Tests cover the main function, parse_preprocessing(), and sgf()
 
-data("NIRcannabis", package = "proximetricsR")
+data("proximateCannabis", package = "proximetricsR")
 
 # Setup: Create a basic calibrated model for testing
 setup_model <- function() {
-  dat <- NIRcannabis[1:20, ]
+  dat <- proximateCannabis[1:20, ]
   dat$spc <- dat$spc[, seq(1, 234, by = 5)]
   control <- calibration_control(validation_type = "kfold", number = 3, seed = 42)
   recipe <- preprocess_recipe(
@@ -120,7 +120,7 @@ test_that("JSON file can be read back and contains expected content", {
 
 test_that("error when preprocessing recipe is empty", {
   skip_on_cran()
-  dat <- NIRcannabis[1:20, ]
+  dat <- proximateCannabis[1:20, ]
   control <- calibration_control(validation_type = "kfold", number = 3, seed = 42)
   recipe <- preprocess_recipe(device = "proxiscout") # Empty recipe
 
@@ -141,7 +141,7 @@ test_that("error when preprocessing recipe is empty", {
 
 test_that("error when first preprocessing step is not prep_resample", {
   skip_on_cran()
-  dat <- NIRcannabis[1:20, ]
+  dat <- proximateCannabis[1:20, ]
   dat$spc <- dat$spc[, seq(1, 234, by = 5)]
   control <- calibration_control(validation_type = "kfold", number = 3, seed = 42)
 
@@ -167,7 +167,7 @@ test_that("error when first preprocessing step is not prep_resample", {
 
 test_that("error when wavenumbers don't match hardware grid", {
   skip_on_cran()
-  dat <- NIRcannabis[1:20, ]
+  dat <- proximateCannabis[1:20, ]
   # Create a recipe with incompatible wavenumber range
   dat$spc <- dat$spc[, seq(1, 234, by = 5)]
   control <- calibration_control(validation_type = "kfold", number = 3, seed = 42)
@@ -383,7 +383,7 @@ test_that("JSON contains centering operation (id=43) for X-means subtraction", {
 
 test_that("model with multiple preprocessing steps serializes correctly", {
   skip_on_cran()
-  dat <- NIRcannabis[1:20, ]
+  dat <- proximateCannabis[1:20, ]
   dat$spc <- dat$spc[, seq(1, 234, by = 5)]
   control <- calibration_control(validation_type = "kfold", number = 3, seed = 42)
 
@@ -417,7 +417,7 @@ test_that("model with multiple preprocessing steps serializes correctly", {
 
 test_that("model with prep_transform(to='absorbance') includes transform operation", {
   skip_on_cran()
-  dat <- NIRcannabis[1:20, ]
+  dat <- proximateCannabis[1:20, ]
   dat$spc <- dat$spc[, seq(1, 234, by = 5)]
   control <- calibration_control(validation_type = "kfold", number = 3, seed = 42)
 

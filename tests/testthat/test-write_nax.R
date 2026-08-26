@@ -1,4 +1,4 @@
-data("NIRcannabis", package = "proximetricsR")
+data("proximateCannabis", package = "proximetricsR")
 
 # Generates a nax file, returns the path to the file
 gen_nax_file_from_model <- function(object, temporary_dir, application_name, ext_props, app_meta) {
@@ -73,8 +73,8 @@ expect_nax_file <- function(file_loc, exp_filenames) {
 }
 
 test_that("Creating an application files for several model at once works", {
-  dat <- NIRcannabis[seq(1, 80, by = 5), ]
-  dat <- dat[, !colnames(NIRcannabis) %in% c("THC", "THCA")]
+  dat <- proximateCannabis[seq(1, 80, by = 5), ]
+  dat <- dat[, !colnames(proximateCannabis) %in% c("THC", "THCA")]
   dat$spc <- dat$spc[, seq(1, 234, by = 10)]
 
   control_1 <- calibration_control(
@@ -120,8 +120,8 @@ test_that("Creating an application files for several model at once works", {
 })
 
 test_that("Creating an application with external files works", {
-  dat <- NIRcannabis[seq(2, 80, by = 5), ]
-  dat <- dat[, !colnames(NIRcannabis) %in% c("CBD", "CBDA", "THCA")]
+  dat <- proximateCannabis[seq(2, 80, by = 5), ]
+  dat <- dat[, !colnames(proximateCannabis) %in% c("CBD", "CBDA", "THCA")]
   dat$spc <- dat$spc[, seq(2, 234, by = 10)]
 
   control <- calibration_control(
@@ -261,8 +261,8 @@ test_that("Data hashes must all be the same for every model", {
 
 test_that("External properties that cannot be found throw a warning", {
   skip_on_cran()
-  dat <- NIRcannabis[seq(2, 80, by = 5), ]
-  dat <- dat[, !colnames(NIRcannabis) %in% c("CBD", "CBDA", "THCA")]
+  dat <- proximateCannabis[seq(2, 80, by = 5), ]
+  dat <- dat[, !colnames(proximateCannabis) %in% c("CBD", "CBDA", "THCA")]
   dat$spc <- dat$spc[, seq(2, 234, by = 10)]
 
   control <- calibration_control(

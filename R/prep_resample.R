@@ -46,8 +46,8 @@
 #' @author Leonardo Ramirez-Lopez and Claudio Orellano
 #'
 #' @examples
-#' data("NIRcannabis")
-#' X <- NIRcannabis$spc
+#' data("proximateCannabis")
+#' X <- proximateCannabis$spc
 #'
 #' # User-defined grid (proximate)
 #' rs <- prep_resample(grid = c(1001, 1700, 2))

@@ -1,4 +1,4 @@
-data("NIRcannabis", package = "proximetricsR")
+data("proximateCannabis", package = "proximetricsR")
 
 gen_prj_file_from_model <- function(object, application_name, property_name) {
   temporary_dir <- tempdir()
@@ -52,8 +52,8 @@ gen_prj_file_from_model <- function(object, application_name, property_name) {
 }
 
 test_that("Writing project files works on refitted models with kfold sampling", {
-  dat <- NIRcannabis[seq(1, 80, by = 3), ]
-  dat <- dat[, !colnames(NIRcannabis) %in% c("THC", "THCA")]
+  dat <- proximateCannabis[seq(1, 80, by = 3), ]
+  dat <- dat[, !colnames(proximateCannabis) %in% c("THC", "THCA")]
   dat$Composition <- as.character(rep(1, nrow(dat)))
   dat$SRN <- dat$SNR
   dat$SNR <- NULL
@@ -82,8 +82,8 @@ test_that("Writing project files works on refitted models with kfold sampling", 
 })
 
 test_that("Writing project files works on fitted models with stratified sampling", {
-  dat <- NIRcannabis[seq(1, 80, by = 3), ]
-  dat <- dat[, !colnames(NIRcannabis) %in% c("CBDA", "THC", "CBD")]
+  dat <- proximateCannabis[seq(1, 80, by = 3), ]
+  dat <- dat[, !colnames(proximateCannabis) %in% c("CBDA", "THC", "CBD")]
   dat$spc <- round(dat$spc[, seq(1, 234, by = 10)], digits = 7)
   method <- fit_plsr(3, "modified")
   control <- calibration_control(

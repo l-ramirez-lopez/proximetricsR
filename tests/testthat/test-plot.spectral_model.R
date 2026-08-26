@@ -1,4 +1,4 @@
-data("NIRcannabis", package = "proximetricsR")
+data("proximateCannabis", package = "proximetricsR")
 
 gen_plot_from_model <- function(object, validations) {
   temporary_dir <- tempdir()
@@ -31,8 +31,8 @@ gen_plot_from_model <- function(object, validations) {
 # be compiled, which is not really the best test.
 test_that("Plots can be made from a spectral_model", {
   skip_on_cran()
-  dat <- NIRcannabis[seq(2, 80, by = 10), ]
-  dat <- dat[, !colnames(NIRcannabis) %in% c("CBDA", "CBD", "THCA")]
+  dat <- proximateCannabis[seq(2, 80, by = 10), ]
+  dat <- dat[, !colnames(proximateCannabis) %in% c("CBDA", "CBD", "THCA")]
   dat$spc <- dat$spc[, seq(2, 234, by = 10)]
   dat$SRN <- dat$SNR
   dat$SNR <- NULL
@@ -54,9 +54,9 @@ test_that("Plots can be made from a spectral_model", {
     control = control, verbose = FALSE, return_inputs = TRUE, skip_indices = 1
   )
   # Make predictions
-  preds <- predict(test_model, NIRcannabis[seq(1, 80, by = 3), ], verbose = FALSE)
+  preds <- predict(test_model, proximateCannabis[seq(1, 80, by = 3), ], verbose = FALSE)
   #' # Validate predictions
-  validations <- validate_prediction(preds, NIRcannabis$THC[seq(1, 80, by = 3)])
+  validations <- validate_prediction(preds, proximateCannabis$THC[seq(1, 80, by = 3)])
   expect_true(file.exists(gen_plot_from_model(test_model, validations)))
 })
 

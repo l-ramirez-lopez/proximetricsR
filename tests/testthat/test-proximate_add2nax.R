@@ -1,9 +1,9 @@
-data("NIRcannabis")
+data("proximateCannabis")
 
 # ─── helper: minimal proximate_data object ────────────────────────────────────
 
 make_pd <- function() {
-  spc <- NIRcannabis$spc[1:10, ]
+  spc <- proximateCannabis$spc[1:10, ]
   id <- paste0("S", 1:10)
   proximate_data(spc = spc, id = id)
 }
@@ -54,9 +54,9 @@ test_that("proximate_add2nax errors on metadata_list length mismatch", {
   pd <- make_pd()
   f <- list(THCA ~ spc, CBD ~ spc)
   pd2 <- proximate_data(
-    spc = NIRcannabis$spc[1:10, ],
+    spc = proximateCannabis$spc[1:10, ],
     id = paste0("S", 1:10),
-    properties = as.matrix(NIRcannabis[1:10, c("THCA", "CBD")])
+    properties = as.matrix(proximateCannabis[1:10, c("THCA", "CBD")])
   )
   expect_error(
     proximate_add2nax(formulas = f, data = pd2, metadata_list = list(NULL)),
@@ -68,9 +68,9 @@ test_that("proximate_add2nax errors on metadata_list length mismatch", {
 
 test_that("proximate_add2nax errors on skip_indices_list length mismatch", {
   pd2 <- proximate_data(
-    spc = NIRcannabis$spc[1:10, ],
+    spc = proximateCannabis$spc[1:10, ],
     id = paste0("S", 1:10),
-    properties = as.matrix(NIRcannabis[1:10, c("THCA", "CBD")])
+    properties = as.matrix(proximateCannabis[1:10, c("THCA", "CBD")])
   )
   f <- list(THCA ~ spc, CBD ~ spc)
   expect_error(
@@ -83,9 +83,9 @@ test_that("proximate_add2nax errors on skip_indices_list length mismatch", {
 
 test_that("proximate_add2nax accepts valid formulas and data", {
   pd2 <- proximate_data(
-    spc = NIRcannabis$spc[1:10, ],
+    spc = proximateCannabis$spc[1:10, ],
     id = paste0("S", 1:10),
-    properties = as.matrix(NIRcannabis[1:10, c("THCA", "CBD")])
+    properties = as.matrix(proximateCannabis[1:10, c("THCA", "CBD")])
   )
   f <- list(THCA ~ spc)
   result <- proximate_add2nax(formulas = f, data = pd2)
@@ -97,9 +97,9 @@ test_that("proximate_add2nax accepts valid formulas and data", {
 
 test_that("proximate_add2nax stores all arguments correctly", {
   pd2 <- proximate_data(
-    spc = NIRcannabis$spc[1:10, ],
+    spc = proximateCannabis$spc[1:10, ],
     id = paste0("S", 1:10),
-    properties = as.matrix(NIRcannabis[1:10, c("THCA"), drop = FALSE])
+    properties = as.matrix(proximateCannabis[1:10, c("THCA"), drop = FALSE])
   )
   f <- list(THCA ~ spc)
   meta <- list(NULL)

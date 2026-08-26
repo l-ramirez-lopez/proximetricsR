@@ -3,7 +3,7 @@
 \docType{data}
 \name{NIRcannabis}
 \alias{NIRcannabis}
-\title{NIRcannabis}
+\title{NIRcannabis (deprecated)}
 \format{
 A \code{data.frame} containing 80 observations of four response variables,
 with their corresponding spectral data.
@@ -15,48 +15,18 @@ BUCHI Labortechnik AG.
 data("NIRcannabis")
 }
 \description{
-Selected samples of cannabis NIR measurements for demo purposes.
-The dataset contains absorbance spectra of 80 cannabis samples measured between
-1001 nm and 1700 nm at a 3 nm interval. A total number of four reference vectors
-is included: \code{"CBDA"} (Cannabidiolic acid), \code{"THCA"}
-(Tetrahydrocannabinolic acid), \code{"CBD"} (Cannabidiol) and \code{"THC"}
-(Tetrahydrocannabinol).
+\strong{Deprecated.} \code{NIRcannabis} was renamed to
+\code{\link{proximateCannabis}} in proximetricsR 0.7.1, for consistency with
+the \code{\link{proxiscoutCannabis}} dataset. It is kept as an exact copy of
+\code{\link{proximateCannabis}} so that existing code keeps working, and will
+be removed in a future release. Please use \code{\link{proximateCannabis}}
+instead.
 }
 \details{
-This dataset is an example for a typical data file for ProxiMate applications,
-with a total of 80 cannabis samples, selected as a subset of a larger database.
-It contains the following rows for each observation:
-\itemize{
-\item \strong{\code{ROW}:} Integers for the associated numbers inside the
-database.
-\item \strong{\code{Check}:} Characters, indicating whether the particular
-observation should be included in the construction of the model inside a
-ProxiMate.
-\item \strong{\code{Date}:} Characters for the date and time when the
-measurement was taken.
-\item \strong{\code{SNR}:} Characters of the serial number of the involved
-ProxiMate device.
-\item \strong{\code{ID:}} Characters for the ID's.
-\item \strong{\code{Barcode}:} Characters for the barcodes.
-\item \strong{\code{Notes}:} Characters for the notes.
-\item \strong{\code{Result}:} Characters for the results.
-\item \strong{\code{Reference}:} Characters containing all reference values,
-concatented into one character with semicolon separation.
-\item \strong{\code{CBDA}:} Numerics for the reference values of Cannabidiolic
-acid.
-\item \strong{\code{THCA}:} Numerics for the references values of
-Tetrahydrocannabinolic acid.
-\item \strong{\code{CBD}:} Numerics for the reference values of Cannabidiol.
-\item \strong{\code{THC}:} Numerics for the reference values of Tetrahydrocannabinol.
-\item \strong{\code{Begin}:} Characters, indicating when the measuring was
-initiated.
-\item \strong{\code{End}:} Characters, indicating when the measurement was
-completed.
-\item \strong{\code{Recipe}:} Characters for the recipe.
-\item \strong{\code{Composition}:} Characters for the composition of the sample.
-\item \strong{\code{Images}:} Characters for the image of the samples.
-\item \strong{\code{spc}:} A numerical matrix of the absorbance spectra,
-corresponding to each individual observation.
+See \code{\link{proximateCannabis}} for the description of the columns.
 }
+\seealso{
+\code{\link{proximateCannabis}}, \code{\link{proxiscoutCannabis}}
 }
 \keyword{datasets}
+\keyword{internal}

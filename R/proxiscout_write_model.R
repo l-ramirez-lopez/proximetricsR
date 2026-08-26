@@ -60,7 +60,7 @@
 #' @author Leonardo Ramirez-Lopez and Claudio Orellano
 #' @examples
 #' \donttest{
-#' data("NIRcannabis")
+#' data("proximateCannabis")
 #' control <- calibration_control(
 #'   validation_type = "kfold", number = 3, folds = "sequential"
 #' )
@@ -72,7 +72,7 @@
 #' )
 #' model <- calibrate(
 #'   THCA ~ spc,
-#'   data = NIRcannabis, preprocess = recipe,
+#'   data = proximateCannabis, preprocess = recipe,
 #'   method = fit_plsr(10), control = control, verbose = FALSE
 #' )
 #'

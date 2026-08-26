@@ -1,65 +1,65 @@
-data("NIRcannabis", package = "proximetricsR")
-# Reconstruct NIRcannabis with properties in a different order
-spc <- NIRcannabis$spc
+data("proximateCannabis", package = "proximetricsR")
+# Reconstruct proximateCannabis with properties in a different order
+spc <- proximateCannabis$spc
 properties <- matrix(
-  c(NIRcannabis$CBD, NIRcannabis$CBDA, NIRcannabis$THC, NIRcannabis$THCA),
+  c(proximateCannabis$CBD, proximateCannabis$CBDA, proximateCannabis$THC, proximateCannabis$THCA),
   ncol = 4, dimnames = list(NULL, c("CBD", "CBDA", "THC", "THCA"))
 )
 data_copy <- proximate_data(
-  spc, NIRcannabis$ID, properties, NIRcannabis$ROW,
-  date = NIRcannabis$Date, snr = NIRcannabis$SNR, barcode = NIRcannabis$Barcode,
-  note = NIRcannabis$Note, begin = NIRcannabis$Begin, end = NIRcannabis$End,
-  recipe = NIRcannabis$Recipe
+  spc, proximateCannabis$ID, properties, proximateCannabis$ROW,
+  date = proximateCannabis$Date, snr = proximateCannabis$SNR, barcode = proximateCannabis$Barcode,
+  note = proximateCannabis$Note, begin = proximateCannabis$Begin, end = proximateCannabis$End,
+  recipe = proximateCannabis$Recipe
 )
 
-# Create another copy of NIRcannabis without any properties
+# Create another copy of proximateCannabis without any properties
 data_noprops <- proximate_data(
-  spc, NIRcannabis$ID,
-  row = NIRcannabis$ROW,
-  date = NIRcannabis$Date, snr = NIRcannabis$SNR, barcode = NIRcannabis$Barcode,
-  note = NIRcannabis$Note, begin = NIRcannabis$Begin, end = NIRcannabis$End,
-  recipe = NIRcannabis$Recipe
+  spc, proximateCannabis$ID,
+  row = proximateCannabis$ROW,
+  date = proximateCannabis$Date, snr = proximateCannabis$SNR, barcode = proximateCannabis$Barcode,
+  note = proximateCannabis$Note, begin = proximateCannabis$Begin, end = proximateCannabis$End,
+  recipe = proximateCannabis$Recipe
 )
 
 test_that("non-property-related values are correctly copied", {
-  delete_ref_orig <- which(names(NIRcannabis) %in% c("Reference", colnames(properties)))
+  delete_ref_orig <- which(names(proximateCannabis) %in% c("Reference", colnames(properties)))
   delete_ref_copy <- which(names(data_copy) %in% c("Reference", colnames(properties)))
 
-  expect_identical(NIRcannabis[, -delete_ref_orig], data_copy[, -delete_ref_copy])
-  expect_identical(NIRcannabis[, -(8:13)], data_noprops[, -(8:9)])
+  expect_identical(proximateCannabis[, -delete_ref_orig], data_copy[, -delete_ref_copy])
+  expect_identical(proximateCannabis[, -(8:13)], data_noprops[, -(8:9)])
 })
 
 test_that("column names remain the same", {
-  expect_true(all(colnames(NIRcannabis) %in% colnames(data_copy)))
+  expect_true(all(colnames(proximateCannabis) %in% colnames(data_copy)))
 })
 
 test_that("property-related values are correctly copied", {
-  expect_identical(NIRcannabis[, c("CBD", "CBDA", "THC", "THCA")], data_copy[, c("CBD", "CBDA", "THC", "THCA")])
+  expect_identical(proximateCannabis[, c("CBD", "CBDA", "THC", "THCA")], data_copy[, c("CBD", "CBDA", "THC", "THCA")])
 })
 
 test_that("properties in different order results in different Reference row", {
-  expect_false(all(NIRcannabis[, "Reference"] == data_copy[, "Reference"]))
+  expect_false(all(proximateCannabis[, "Reference"] == data_copy[, "Reference"]))
 })
 
 test_that("returned objects are data.frames of class proximate_data", {
-  expect_true(inherits(NIRcannabis, c("list", "data.frame", "proximate_data")))
+  expect_true(inherits(proximateCannabis, c("list", "data.frame", "proximate_data")))
   expect_true(inherits(data_copy, c("list", "data.frame", "proximate_data")))
   expect_true(inherits(data_noprops, c("list", "data.frame", "proximate_data")))
 })
 
 test_that("coefficients are ignored for constant wavelength resolution", {
   expect_identical(data_copy, proximate_data(
-    spc, NIRcannabis$ID, properties, NIRcannabis$ROW,
-    date = NIRcannabis$Date, snr = NIRcannabis$SNR, barcode = NIRcannabis$Barcode,
-    note = NIRcannabis$Note, begin = NIRcannabis$Begin, end = NIRcannabis$End,
-    recipe = NIRcannabis$Recipe, coeffs = list(X1 = 1e6)
+    spc, proximateCannabis$ID, properties, proximateCannabis$ROW,
+    date = proximateCannabis$Date, snr = proximateCannabis$SNR, barcode = proximateCannabis$Barcode,
+    note = proximateCannabis$Note, begin = proximateCannabis$Begin, end = proximateCannabis$End,
+    recipe = proximateCannabis$Recipe, coeffs = list(X1 = 1e6)
   ))
 })
 
 test_that("coefficients are correctly copied", {
   expected_coeffs <- list(X1 = 0, X2 = 233, X3 = list(c(0, 3, 998)))
   expect_identical(attr(data_copy, "coeffs"), expected_coeffs)
-  expect_identical(attr(NIRcannabis, "coeffs"), expected_coeffs)
+  expect_identical(attr(proximateCannabis, "coeffs"), expected_coeffs)
   expect_identical(attr(data_noprops, "coeffs"), expected_coeffs)
 })
 
@@ -80,10 +80,10 @@ spc_nc <- prospectr::resample(spc, as.numeric(colnames(spc)), wavs, interpol = "
 colnames(spc_nc) <- wavs
 # Create a proximate_data object with non-constant wavelength resolution via coefficients
 data_coeff <- proximate_data(
-  spc_nc, NIRcannabis$ID, properties, NIRcannabis$ROW,
-  date = NIRcannabis$Date, snr = NIRcannabis$SNR, barcode = NIRcannabis$Barcode,
-  note = NIRcannabis$Note, begin = NIRcannabis$Begin, end = NIRcannabis$End,
-  recipe = NIRcannabis$Recipe, coeffs = non_const
+  spc_nc, proximateCannabis$ID, properties, proximateCannabis$ROW,
+  date = proximateCannabis$Date, snr = proximateCannabis$SNR, barcode = proximateCannabis$Barcode,
+  note = proximateCannabis$Note, begin = proximateCannabis$Begin, end = proximateCannabis$End,
+  recipe = proximateCannabis$Recipe, coeffs = non_const
 )
 
 test_that("Non-constant wavelength spectra has no influence on non-spectral parameters", {
@@ -102,7 +102,7 @@ test_that("Non-constant wavelength spectra can be used to create & correctly imp
   expect_identical(attr(data_coeff, "coeffs"), attr(reimp_tsv, "coeffs"))
 })
 
-default_proximate_data <- proximate_data(spc, NIRcannabis$ID)
+default_proximate_data <- proximate_data(spc, proximateCannabis$ID)
 
 test_that("Default rownames are correct", {
   expect_identical(rownames(default_proximate_data), rownames(data_noprops))
@@ -162,7 +162,7 @@ test_that("Default Images is empty character", {
 })
 
 # Sanity checks
-id <- NIRcannabis$ID
+id <- proximateCannabis$ID
 
 test_that("Spectrum must be given", {
   expect_error(proximate_data(), "'spc' is missing.")

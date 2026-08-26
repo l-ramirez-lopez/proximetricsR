@@ -40,23 +40,23 @@ Calculate several prediction validation statistics for a prediction of class
 \code{'spectral_prediction'}.
 }
 \examples{
-data("NIRcannabis")
+data("proximateCannabis")
 skips <- c(10, 25, 37)
 simple_model <- calibrate(CBDA ~ spc,
-  data = NIRcannabis, preprocess = preprocess_recipe(),
+  data = proximateCannabis, preprocess = preprocess_recipe(),
   method = fit_plsr(5), control = calibration_control("kfold"),
   skips = skips, verbose = FALSE
 )
 
 # Predict the skipped indices
 pred <- predict(simple_model,
-  newdata = NIRcannabis[skips, ],
+  newdata = proximateCannabis[skips, ],
   ncomp = simple_model$final_ncomp,
   verbose = FALSE
 )
 
 # Validate skipped indices
-validate_prediction(pred, NIRcannabis$CBDA[skips])
+validate_prediction(pred, proximateCannabis$CBDA[skips])
 }
 \author{
 Claudio Orellano

@@ -1,5 +1,9 @@
 proximetricsR 0.7.1 "Valinhos"
 ===============
+* Feat: new dataset `proxiscoutCannabis`, containing absorbance spectra of 192 cannabis samples measured with three ProxiScout devices at the 257 standard ProxiScout wavenumbers, together with eleven cannabinoid reference variables (`CBDA`, `CBG`, `CBD`, `CBN`, `THC`, `THCA`, `CBC`, `CBGA`, `CBD_total`, `THC_total` and `CBGt`). The set includes one deliberate outlier and a `deviceId` column usable as `validation_group`.
+* Deprecated: the dataset `NIRcannabis` was renamed to `proximateCannabis`, for consistency with the new `proxiscoutCannabis` dataset. The old name still works but is deprecated and will be removed in a future release.
+* Breaking: the dataset `NIRcannabis` was renamed to `proximateCannabis`, for consistency with the new `proxiscoutCannabis` dataset. The old name is kept as a deprecated copy and will be removed in a future release.
+* Docs: `proximateCannabis` and `proxiscoutCannabis` cross-reference each other, noting that they share neither samples nor reference values.
 * Feat: validation results now include the Mahalanobis (GH) distance, computed from scaled PLS scores, and the spectral (X-space) residual for each sample. Both are returned by `calibrate_models()` and `validate_prediction()` and are available for downstream analysis.
 * Feat: `plot.spectral_model()` gained a `validation_group` argument to colour validation samples by group, for example by instrument.
 * Feat: new "Leverage vs. Spectral Residual" validation plot, showing Mahalanobis distance against normalised spectral residuals, with grouped colouring.

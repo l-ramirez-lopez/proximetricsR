@@ -1,6 +1,6 @@
-data("NIRcannabis", package = "proximetricsR")
-X <- NIRcannabis$spc[1:40, 1:15] # reduced number of wavelengths to save memory
-Y <- matrix(NIRcannabis$THC[1:40], dimnames = list(NULL, "thc"))
+data("proximateCannabis", package = "proximetricsR")
+X <- proximateCannabis$spc[1:40, 1:15] # reduced number of wavelengths to save memory
+Y <- matrix(proximateCannabis$THC[1:40], dimnames = list(NULL, "thc"))
 method <- fit_plsr(10)
 group <- rep(1:10, times = 4)
 

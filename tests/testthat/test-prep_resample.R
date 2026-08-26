@@ -1,5 +1,5 @@
-data("NIRcannabis", package = "proximetricsR")
-X <- NIRcannabis$spc[c(11, 56), seq(1, 230, by = 5)] # reduce to save memory
+data("proximateCannabis", package = "proximetricsR")
+X <- proximateCannabis$spc[c(11, 56), seq(1, 230, by = 5)] # reduce to save memory
 
 test_that("Function returns named list if no spectrum given", {
   spline_recipe <- prep_resample(c(5, 10, 100))

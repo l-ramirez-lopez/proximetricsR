@@ -29,10 +29,10 @@
 #' processing is used, these progress bars are not printed.
 #' @author Leonardo Ramirez-Lopez
 #' @examples
-#' data("NIRcannabis")
+#' data("proximateCannabis")
 #' # Convert THCA to matrix
-#' Y <- matrix(NIRcannabis$THCA, ncol = 1)
-#' X <- NIRcannabis$spc
+#' Y <- matrix(proximateCannabis$THCA, ncol = 1)
+#' X <- proximateCannabis$spc
 #' method <- fit_plsr(10)
 #'
 #' # Control for leave-group-out CV 100 times with 90% sample retainment, with replacements

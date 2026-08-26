@@ -47,8 +47,8 @@
 #' @author Leonardo Ramirez-Lopez and Claudio Orellano
 #'
 #' @examples
-#' data("NIRcannabis")
-#' X <- NIRcannabis$spc
+#' data("proximateCannabis")
+#' X <- proximateCannabis$spc
 #'
 #' # Savitzky-Golay smoothing, window 11, polynomial order 3
 #' sg <- prep_smooth(w = 11, p = 3, algorithm = "savitzky-golay")

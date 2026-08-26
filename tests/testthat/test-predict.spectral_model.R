@@ -1,7 +1,7 @@
-data("NIRcannabis", package = "proximetricsR")
+data("proximateCannabis", package = "proximetricsR")
 
 # Setup for checking if model predictions are as expected.
-dat <- NIRcannabis[41:80, ] # reduce number of samples
+dat <- proximateCannabis[41:80, ] # reduce number of samples
 X <- dat$spc # reduced number of samples
 rownames(X) <- NULL
 Y <- matrix(dat$THC, dimnames = list(41:80, "THC"))
@@ -266,43 +266,43 @@ test_that("For predictions, newdata must be given", {
 
 test_that("For predictions, the model given must be of class 'spectral_model'", {
   expect_error(
-    predict.spectral_model(list(), newdata = NIRcannabis),
+    predict.spectral_model(list(), newdata = proximateCannabis),
     "'object' must be of class 'spectral_model."
   )
 })
 
 test_that("For predictions, the number of components must be in the computed components of the model", {
   expect_error(
-    predict(model_form, newdata = NIRcannabis, ncomp = c(20, 21), verbose = FALSE),
+    predict(model_form, newdata = proximateCannabis, ncomp = c(20, 21), verbose = FALSE),
     "The maximum of 'ncomp' is larger than the number of components in the model"
   )
   expect_error(
-    predict(model_form, newdata = NIRcannabis, ncomp = 20, verbose = FALSE),
+    predict(model_form, newdata = proximateCannabis, ncomp = 20, verbose = FALSE),
     "'ncomp' is larger than the number of components in the model"
   )
 })
 
 test_that("For predictions, newdata must be a data.frame or matrix", {
-  expect_error(predict(model_form, newdata = c(NIRcannabis), verbose = FALSE))
+  expect_error(predict(model_form, newdata = c(proximateCannabis), verbose = FALSE))
 })
 
 test_that("For predictions with formula, the predictor variables must be contained in newdata", {
   expect_error(
-    predict(model_form, newdata = unname(NIRcannabis), verbose = FALSE),
+    predict(model_form, newdata = unname(proximateCannabis), verbose = FALSE),
     "The following predictor variables are missing: spc"
   )
 })
 
 test_that("Verbose must be a logical", {
   expect_error(
-    predict(model_form, newdata = NIRcannabis, verbose = "1"),
+    predict(model_form, newdata = proximateCannabis, verbose = "1"),
     "'verbose' must a logical."
   )
 })
 
 test_that("ncomp must be a vector of numerics", {
   expect_error(
-    predict(model_form, newdata = NIRcannabis, ncomp = "1")
+    predict(model_form, newdata = proximateCannabis, ncomp = "1")
   )
 })
 
@@ -349,7 +349,7 @@ test_that("constant-edge trimming is frozen at calibration and keeps newdata ali
 
   # (2) newdata with NON-constant edges: a re-derived scan would keep the first
   #     three columns and misalign. The frozen recipe drops them and predicts.
-  Xnew <- NIRcannabis$spc[1:15, ]
+  Xnew <- proximateCannabis$spc[1:15, ]
   pred <- predict(m, Xnew, verbose = FALSE)
   expect_s3_class(pred, "spectral_prediction")
   expect_equal(nrow(pred$predictions), nrow(Xnew))

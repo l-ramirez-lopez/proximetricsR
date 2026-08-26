@@ -1,5 +1,5 @@
-# Use only a small subset of NIRcannabis
-data("NIRcannabis", package = "proximetricsR")
+# Use only a small subset of proximateCannabis
+data("proximateCannabis", package = "proximetricsR")
 
 # Helper function to round numeric values to 6 decimal places (5 for tolerant tests)
 round_numeric <- function(x, digits = 6) {
@@ -26,8 +26,8 @@ round_numeric_tol <- function(x, digits = 5) {
 
 
 test_that("Modified partial least squares computes the correct results", {
-  X <- NIRcannabis$spc[seq(1, 80, by = 15), seq(1, ncol(NIRcannabis$spc), by = 20)]
-  Y <- NIRcannabis$CBD[seq(1, 80, by = 15)]
+  X <- proximateCannabis$spc[seq(1, 80, by = 15), seq(1, ncol(proximateCannabis$spc), by = 20)]
+  Y <- proximateCannabis$CBD[seq(1, 80, by = 15)]
   model_result <- .estimate_model(X, Y, fit_plsr(5, "modified"))
   expect_true(inherits(model_result, "spectral_fit"))
   class(model_result) <- "list"
@@ -35,8 +35,8 @@ test_that("Modified partial least squares computes the correct results", {
 })
 
 test_that("Standard partial least squares computes the correct results", {
-  X <- NIRcannabis$spc[seq(2, 80, by = 15), seq(2, ncol(NIRcannabis$spc), by = 20)]
-  Y <- NIRcannabis$CBDA[seq(2, 80, by = 15)]
+  X <- proximateCannabis$spc[seq(2, 80, by = 15), seq(2, ncol(proximateCannabis$spc), by = 20)]
+  Y <- proximateCannabis$CBDA[seq(2, 80, by = 15)]
   model_result <- .estimate_model(X, Y, fit_plsr(4, "standard"))
   expect_true(inherits(model_result, "spectral_fit"))
   class(model_result) <- "list"
@@ -44,8 +44,8 @@ test_that("Standard partial least squares computes the correct results", {
 })
 
 test_that("NIRWise PLUS partial least squares computes the correct results", {
-  X <- NIRcannabis$spc[seq(3, 80, by = 15), seq(3, ncol(NIRcannabis$spc), by = 20)]
-  Y <- NIRcannabis$CBD[seq(3, 80, by = 15)]
+  X <- proximateCannabis$spc[seq(3, 80, by = 15), seq(3, ncol(proximateCannabis$spc), by = 20)]
+  Y <- proximateCannabis$CBD[seq(3, 80, by = 15)]
   model_result <- .estimate_model(X, Y, fit_plsr(5, "nwp"))
   expect_true(inherits(model_result, "spectral_fit"))
   class(model_result) <- "list"
@@ -53,8 +53,8 @@ test_that("NIRWise PLUS partial least squares computes the correct results", {
 })
 
 test_that("Modified extended partial least squares computes the correct results", {
-  X <- NIRcannabis$spc[seq(4, 80, by = 15), seq(4, ncol(NIRcannabis$spc), by = 20)]
-  Y <- NIRcannabis$THC[seq(4, 80, by = 15)]
+  X <- proximateCannabis$spc[seq(4, 80, by = 15), seq(4, ncol(proximateCannabis$spc), by = 20)]
+  Y <- proximateCannabis$THC[seq(4, 80, by = 15)]
   model_result <- .estimate_model(X, Y, fit_xlsr(3, "modified", min_w = 5, max_w = 10))
   expect_true(inherits(model_result, "spectral_fit"))
   class(model_result) <- "list"
@@ -62,8 +62,8 @@ test_that("Modified extended partial least squares computes the correct results"
 })
 
 test_that("Standard extended partial least squares computes the correct results", {
-  X <- NIRcannabis$spc[seq(5, 80, by = 15), seq(5, ncol(NIRcannabis$spc), by = 20)]
-  Y <- NIRcannabis$CBD[seq(5, 80, by = 15)]
+  X <- proximateCannabis$spc[seq(5, 80, by = 15), seq(5, ncol(proximateCannabis$spc), by = 20)]
+  Y <- proximateCannabis$CBD[seq(5, 80, by = 15)]
   model_result <- .estimate_model(X, Y, fit_xlsr(4, "standard"))
   expect_true(inherits(model_result, "spectral_fit"))
   class(model_result) <- "list"
@@ -71,8 +71,8 @@ test_that("Standard extended partial least squares computes the correct results"
 })
 
 test_that("NIRWise PLUS extended partial least squares computes the correct results", {
-  X <- NIRcannabis$spc[seq(5, 80, by = 15), seq(6, ncol(NIRcannabis$spc), by = 20)]
-  Y <- NIRcannabis$THCA[seq(5, 80, by = 15)]
+  X <- proximateCannabis$spc[seq(5, 80, by = 15), seq(6, ncol(proximateCannabis$spc), by = 20)]
+  Y <- proximateCannabis$THCA[seq(5, 80, by = 15)]
   model_result <- .estimate_model(X, Y, fit_xlsr(5, "nwp", min_w = 2, max_w = 4))
   expect_true(inherits(model_result, "spectral_fit"))
   class(model_result) <- "list"
@@ -80,16 +80,16 @@ test_that("NIRWise PLUS extended partial least squares computes the correct resu
 })
 
 test_that("The regression method is printed correctly", {
-  X <- NIRcannabis$spc[seq(6, 80, by = 15), seq(6, ncol(NIRcannabis$spc), by = 20)]
-  Y <- NIRcannabis$THCA[seq(6, 80, by = 15)]
+  X <- proximateCannabis$spc[seq(6, 80, by = 15), seq(6, ncol(proximateCannabis$spc), by = 20)]
+  Y <- proximateCannabis$THCA[seq(6, 80, by = 15)]
   model_result <- .estimate_model(X, Y, fit_xlsr(3, "nwp", min_w = 1, max_w = 3))
   model_result$method$method <- "xls"
   expect_snapshot(print(round_numeric_tol(model_result)))
 })
 
 test_that("Basic regression is printed correctly", {
-  X <- NIRcannabis$spc[seq(6, 80, by = 15), seq(6, ncol(NIRcannabis$spc), by = 20)]
-  Y <- NIRcannabis$THCA[seq(6, 80, by = 15)]
+  X <- proximateCannabis$spc[seq(6, 80, by = 15), seq(6, ncol(proximateCannabis$spc), by = 20)]
+  Y <- proximateCannabis$THCA[seq(6, 80, by = 15)]
   model_result <- .estimate_model(X, Y, fit_plsr(4, "modified"))
   model_result$n_observations <- NULL
   expect_snapshot(print(round_numeric(model_result)))

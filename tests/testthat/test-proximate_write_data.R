@@ -1,4 +1,4 @@
-data("NIRcannabis", package = "proximetricsR")
+data("proximateCannabis", package = "proximetricsR")
 path <- tempdir()
 filename <- paste0(path, "/tempfile.tsv")
 filename_2 <- paste0(path, "/tempfile2.tsv")
@@ -8,19 +8,19 @@ filename_2 <- paste0(path, "/tempfile2.tsv")
 ############################
 
 # When supplied with all parameters
-test_that("Creating a tsv from NIRcannabis works", {
+test_that("Creating a tsv from proximateCannabis works", {
   proximate_write_data(
-    x = NIRcannabis,
+    x = proximateCannabis,
     file = filename,
-    id = NIRcannabis$ID,
+    id = proximateCannabis$ID,
     spc = "spc",
     spc_round = 8,
-    barcode = NIRcannabis$Barcode,
+    barcode = proximateCannabis$Barcode,
     properties = c("CBDA", "THCA", "CBD", "THC"),
-    note = NIRcannabis$Note,
-    recipe = NIRcannabis$Recipe,
-    created = NIRcannabis$Begin,
-    snr = NIRcannabis$SNR
+    note = proximateCannabis$Note,
+    recipe = proximateCannabis$Recipe,
+    created = proximateCannabis$Begin,
+    snr = proximateCannabis$SNR
   )
   expect_true(file.exists(filename))
 })
@@ -57,7 +57,7 @@ test_that("Write random dataset of tsv data produces files", {
 })
 
 test_that("Writing a dataset without any date contained in the dataset works", {
-  nodate_data <- NIRcannabis
+  nodate_data <- proximateCannabis
   nodate_data$Date <- nodate_data$Begin <- nodate_data$End <- NULL
   nodate_data$SRN <- nodate_data$SNR
   nodate_data$SNR <- NULL
@@ -76,8 +76,8 @@ test_that("Writing a dataset without any date contained in the dataset works", {
 
 test_that("Original dataset is equal to exported and reimported dataset", {
   file_imported <- proximate_read_data(filename)
-  expect_equal(file_imported, NIRcannabis)
-  expect_identical(attr(file_imported, "coeffs"), attr(NIRcannabis, "coeffs"))
+  expect_equal(file_imported, proximateCannabis)
+  expect_identical(attr(file_imported, "coeffs"), attr(proximateCannabis, "coeffs"))
 })
 
 test_that("Random dataset can be correctly exported and reimported", {

@@ -51,10 +51,10 @@
 #'
 #' @examples
 #' \donttest{
-#' data("NIRcannabis")
+#' data("proximateCannabis")
 #' control <- calibration_control(validation_type = "kfold", number = 3, folds = "sequential")
 #' amodel <- calibrate(CBDA ~ spc,
-#'   data = NIRcannabis, preprocess = preprocess_recipe(),
+#'   data = proximateCannabis, preprocess = preprocess_recipe(),
 #'   method = fit_plsr(5), control = control, verbose = FALSE
 #' )
 #'

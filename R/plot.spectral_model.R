@@ -230,7 +230,7 @@
 #'
 #' @examples
 #' \donttest{
-#' data("NIRcannabis")
+#' data("proximateCannabis")
 #' control <- calibration_control(validation_type = "kfold", number = 3, folds = "sequential")
 #' prepro_recipe <- preprocess_recipe(
 #'   prep_resample(grid = c(1001, 1700, 2)),
@@ -240,7 +240,7 @@
 #' )
 #' skips <- c(5, 13, 21, 73)
 #' my_model <- calibrate(CBDA ~ spc,
-#'   data = NIRcannabis, preprocess = prepro_recipe,
+#'   data = proximateCannabis, preprocess = prepro_recipe,
 #'   method = fit_plsr(15), control = control, skip = skips, verbose = FALSE
 #' )
 #'
@@ -265,8 +265,8 @@
 #'   )
 #' )
 #' # Make predictions and validate
-#' preds <- predict(my_model, NIRcannabis[skips, ])
-#' validations <- validate_prediction(preds, NIRcannabis$CBDA[skips])
+#' preds <- predict(my_model, proximateCannabis[skips, ])
+#' validations <- validate_prediction(preds, proximateCannabis$CBDA[skips])
 #' # Plot validation section only, grouping validation samples by instrument.
 #' # Indices in validation_group refer to the position of a sample within the
 #' # validation set (i.e. within 'skips'), not to calibration sample indices.
@@ -279,8 +279,8 @@
 #'   cv = NULL,
 #'   regression = NULL,
 #'   validation_group = list(
-#'     "Instrument A" = 1:2, # rows 5 and 13 of NIRcannabis (skips[1:2])
-#'     "Instrument B" = 3:4 # rows 21 and 73 of NIRcannabis (skips[3:4])
+#'     "Instrument A" = 1:2, # rows 5 and 13 of proximateCannabis (skips[1:2])
+#'     "Instrument B" = 3:4 # rows 21 and 73 of proximateCannabis (skips[3:4])
 #'   )
 #' )
 #' }

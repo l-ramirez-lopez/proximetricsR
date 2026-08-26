@@ -1,5 +1,5 @@
-data("NIRcannabis", package = "proximetricsR")
-dat <- NIRcannabis[25:40, ]
+data("proximateCannabis", package = "proximetricsR")
+dat <- proximateCannabis[25:40, ]
 X <- dat$spc[, seq(1, 230, by = 5)] # reduce to save memory
 Y <- matrix(dat$THCA, dimnames = list(1:16, "THCA"))
 control <- calibration_control(validation_type = "kfold", number = 3, folds = "sequential")
@@ -15,15 +15,15 @@ model1 <- calibrate(
   data = dat, preprocess = pretreats, method = fit_plsr(4), control = control,
   verbose = FALSE
 )
-pred1 <- predict(model1, NIRcannabis[1:10, ], verbose = FALSE, ncomp = 1:4)
-val <- validate_prediction(pred1, NIRcannabis$THCA[1:10])
+pred1 <- predict(model1, proximateCannabis[1:10, ], verbose = FALSE, ncomp = 1:4)
+val <- validate_prediction(pred1, proximateCannabis$THCA[1:10])
 
 test_that("Validation contains the correct model information", {
   expect_identical(val$model_information, pred1$model_information)
 })
 
 test_that("The correct target values are saved", {
-  expect_identical(val$reference, matrix(NIRcannabis$THCA[1:10], dimnames = list(1:10, "y")))
+  expect_identical(val$reference, matrix(proximateCannabis$THCA[1:10], dimnames = list(1:10, "y")))
 })
 
 test_that("The validation results are correct", {
@@ -43,12 +43,12 @@ test_that("The spectral (Q) residual is carried over from the prediction into th
 })
 
 test_that("Not available target values are correctly ignored", {
-  Y_new <- matrix(c(NIRcannabis$THCA[1:5], rep(NA, 5)))
+  Y_new <- matrix(c(proximateCannabis$THCA[1:5], rep(NA, 5)))
   colnames(Y_new) <- "THCA"
   val2 <- validate_prediction(pred1, Y_new)
 
   expect_identical(val2$model_information, val$model_information)
-  expect_identical(val2$reference, matrix(c(NIRcannabis$THCA[1:5], rep(NA, 5)), dimnames = list(1:10, "y")))
+  expect_identical(val2$reference, matrix(c(proximateCannabis$THCA[1:5], rep(NA, 5)), dimnames = list(1:10, "y")))
   expect_snapshot(val2$validation)
 })
 
@@ -70,21 +70,21 @@ test_that("Validations are correctly printed if original model grid missing", {
 #################
 
 test_that("Provided prediction must be of class 'spectral_prediction'", {
-  expect_error(validate_prediction(pred1$predictions, NIRcannabisTHCA[1:10]), "Parameter 'prediction' must be of class 'spectral_prediction'.")
+  expect_error(validate_prediction(pred1$predictions, proximateCannabisTHCA[1:10]), "Parameter 'prediction' must be of class 'spectral_prediction'.")
 })
 
 test_that("Prediction missing 'mahalanobis' or 'q_residual' (e.g. from an older package version) errors clearly", {
   pred_no_mahal <- pred1
   pred_no_mahal$mahalanobis <- NULL
   expect_error(
-    validate_prediction(pred_no_mahal, NIRcannabis$THCA[1:10]),
+    validate_prediction(pred_no_mahal, proximateCannabis$THCA[1:10]),
     "missing 'mahalanobis' and/or 'q_residual'"
   )
 
   pred_no_q <- pred1
   pred_no_q$q_residual <- NULL
   expect_error(
-    validate_prediction(pred_no_q, NIRcannabis$THCA[1:10]),
+    validate_prediction(pred_no_q, proximateCannabis$THCA[1:10]),
     "missing 'mahalanobis' and/or 'q_residual'"
   )
 })
@@ -108,7 +108,7 @@ test_that("Reference values cannot all be not available", {
 
 test_that("validations work", {
   # Check issues
-  expect_error(validate_prediction(preds, cbind(rep(NIRcannabis$CBDA[skips], 2))))
-  expect_error(validate_prediction(preds, rbind(rep(NIRcannabis$CBDA[skips], 2))))
+  expect_error(validate_prediction(preds, cbind(rep(proximateCannabis$CBDA[skips], 2))))
+  expect_error(validate_prediction(preds, rbind(rep(proximateCannabis$CBDA[skips], 2))))
   expect_error(validate_prediction(preds, rep(NA, 5)))
 })

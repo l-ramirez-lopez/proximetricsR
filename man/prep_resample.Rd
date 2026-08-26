@@ -48,8 +48,8 @@ the standard wavenumber grid of NeoSpectra NIR scanners
 retained. This mode is compatible with the \code{"proxiscout"} device.
 }
 \examples{
-data("NIRcannabis")
-X <- NIRcannabis$spc
+data("proximateCannabis")
+X <- proximateCannabis$spc
 
 # User-defined grid (proximate)
 rs <- prep_resample(grid = c(1001, 1700, 2))

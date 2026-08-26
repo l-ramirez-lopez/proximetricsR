@@ -62,8 +62,8 @@ library("proximetricsR")
 ```
 
 ```{r data, results = 'hide'}
-data("NIRcannabis")
-X <- NIRcannabis$spc
+data("proximateCannabis")
+X <- proximateCannabis$spc
 ```
 
 # Preprocessing constructors

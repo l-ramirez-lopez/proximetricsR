@@ -102,9 +102,14 @@
 #'   }
 #' A typical example dataset for a ProxiMate device can be found in:
 #' \itemize{
-#'   \item{\code{\link{NIRcannabis}}}
+#'   \item{\code{\link{proximateCannabis}}}
 #' }
-#'
+#' 
+#' A typical example dataset for a ProxiScout device can be found in:
+#' \itemize{
+#'   \item{\code{\link{proxiscoutCannabis}}}
+#' }
+#' 
 #' @name proximetricsR-package
 #' @aliases proximetricsR-package proximetricsR
 #' @title Overview of the proximetricsR package
