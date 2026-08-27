@@ -7,9 +7,9 @@ status](https://www.r-pkg.org/badges/version/proximetricsR?v=2.png)](https://CRA
 
 ![proximetricsR logo](./reference/figures/logo.png)
 
-*Last update: 2026-08-01*
+*Last update: 2026-08-14*
 
-Version: 0.7.0 – Matterhorn2
+Version: 0.7.1 – Valinhos
 
 ## About
 
@@ -329,7 +329,8 @@ For questions, contact:
   preprocessing
 
 - [`prep_wav_trim()`](https://buchi-labortechnik-ag.github.io/proximetricsR/reference/prep_wav_trim.md)
-  : Wavelength trimming constructor for spectral preprocessing
+  : Wavelength or wavenumber trimming constructor for spectral
+  preprocessing
 
 - [`preprocess_recipe()`](https://buchi-labortechnik-ag.github.io/proximetricsR/reference/preprocess_recipe.md)
   [`process()`](https://buchi-labortechnik-ag.github.io/proximetricsR/reference/preprocess_recipe.md)

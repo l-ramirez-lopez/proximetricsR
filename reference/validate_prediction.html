@@ -13,7 +13,7 @@ Calculate several prediction validation statistics for a prediction of class
 
     <a class="navbar-brand me-2" href="../index.html">proximetricsR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -89,6 +89,10 @@ the predicted values and the corresponding errors in a matrix, while
 (<em></em>\(R^2\)), root mean squared error (<code>RMSE</code>) and the largest
 residual obtained. These statistics are computed based on the <code>prediction</code>
 and <code>reference</code>, while ignoring any <code>NA</code>'s.</p></li>
+<li><p><strong><code>control_limits</code>:</strong> A list carried over from the
+<code>prediction</code> with the per-component control limits used by the
+leverage-vs-Q plot: <code>q</code> (spectral residual Q limits), <code>leverage</code>
+(leverage limits) and <code>conf</code> (their confidence level).</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="author">Author<a class="anchor" aria-label="anchor" href="#author"></a></h2>
@@ -120,10 +124,10 @@ and <code>reference</code>, while ignoring any <code>NA</code>'s.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Number of components (nc): 5 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ________________________________________________________________________________ </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    y    | nc_5 y_hat  error </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 7.59 |       9.457 -1.867</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 25 0.03 |      -0.851  0.881</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 37 9.77 |      14.070 -4.302</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    y    | nc_5 y_hat  error  mahalanobis q_residual</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 7.59 |       9.457 -1.867  0.583       0.000    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25 0.03 |      -0.851  0.881  2.216       0.000    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 37 9.77 |      14.070 -4.302  1.300       0.000    </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ________________________________________________________________________________ </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Comparison of model and validation statistics:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>

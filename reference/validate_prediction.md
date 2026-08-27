@@ -43,6 +43,11 @@ the following validation statistics of the prediction:
   obtained. These statistics are computed based on the `prediction` and
   `reference`, while ignoring any `NA`'s.
 
+- **`control_limits`:** A list carried over from the `prediction` with
+  the per-component control limits used by the leverage-vs-Q plot: `q`
+  (spectral residual Q limits), `leverage` (leverage limits) and `conf`
+  (their confidence level).
+
 ## Author
 
 Claudio Orellano
@@ -73,10 +78,10 @@ validate_prediction(pred, NIRcannabis$CBDA[skips])
 #> Number of components (nc): 5 
 #> ________________________________________________________________________________ 
 #> 
-#>    y    | nc_5 y_hat  error 
-#> 10 7.59 |       9.457 -1.867
-#> 25 0.03 |      -0.851  0.881
-#> 37 9.77 |      14.070 -4.302
+#>    y    | nc_5 y_hat  error  mahalanobis q_residual
+#> 10 7.59 |       9.457 -1.867  0.583       0.000    
+#> 25 0.03 |      -0.851  0.881  2.216       0.000    
+#> 37 9.77 |      14.070 -4.302  1.300       0.000    
 #> ________________________________________________________________________________ 
 #> Comparison of model and validation statistics:
 #> 

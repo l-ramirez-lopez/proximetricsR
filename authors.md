@@ -22,14 +22,14 @@
 Source:
 [`inst/CITATION`](https://github.com/buchi-labortechnik-ag/proximetricsr/blob/main/inst/CITATION)
 
-Ramirez-Lopez, L., Orellano, C., Cudlenco, N., Said, M., and Abushosha,
-M. (2026). proximetricsR: Spectral Preprocessing and Calibration for NIR
-Sensors. R package version 0.7.0.
+Ramirez-Lopez, L., Orellano, C., Cudlenco, N., Said, M., Abushosha, M.
+and Plans, M. (2026). proximetricsR: Spectral Preprocessing and
+Calibration for NIR Sensors. R package version 0.7.1.
 
     @Manual{,
       title = {proximetricsR: Spectral Preprocessing and Calibration for NIR Sensors},
       author = {Leonardo Ramirez-Lopez and Claudio Orellano and Nicolae Cudlenco and Mai Said and Mohamed Abushosha and Marcal Plans},
       year = {2026},
-      note = {R package version 0.7.0},
+      note = {R package version 0.7.1},
       url = {https://github.com/buchi-labortechnik-ag/proximetricsr},
     }
