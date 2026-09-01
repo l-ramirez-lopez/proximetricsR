@@ -31,8 +31,8 @@
 #' Applied spectroscopy, 43(5): 772-777.
 #'
 #' @examples
-#' data("NIRcannabis")
-#' X <- NIRcannabis$spc
+#' data("proximateCannabis")
+#' X <- proximateCannabis$spc
 #'
 #' snv <- prep_snv()
 #' recipe <- preprocess_recipe(snv)

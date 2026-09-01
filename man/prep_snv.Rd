@@ -28,8 +28,8 @@ where \mjeqn{x_i}{x_i} is the signal of the \mjeqn{i}{i}th observation,
 deviation. Implemented via \code{\link[prospectr]{standardNormalVariate}}.
 }
 \examples{
-data("NIRcannabis")
-X <- NIRcannabis$spc
+data("proximateCannabis")
+X <- proximateCannabis$spc
 
 snv <- prep_snv()
 recipe <- preprocess_recipe(snv)

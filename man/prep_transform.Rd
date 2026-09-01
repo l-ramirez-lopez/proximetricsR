@@ -37,8 +37,8 @@ Note that no check is performed on whether the input is actually in the
 expected unit (the transformation is applied as specified).
 }
 \examples{
-data("NIRcannabis")
-X <- NIRcannabis$spc # absorbance
+data("proximateCannabis")
+X <- proximateCannabis$spc # absorbance
 
 tr <- prep_transform(to = "reflectance")
 recipe <- preprocess_recipe(tr, device = "proxiscout")

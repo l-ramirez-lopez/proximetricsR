@@ -135,7 +135,7 @@ For example, the following code returns the correct format (both
 }
 \examples{
 \donttest{
-data(NIRcannabis)
+data(proximateCannabis)
 
 # Downview Absorbance of CBDA in percentage
 downview_metadata <- add_application_metadata(
@@ -146,7 +146,7 @@ downview_metadata <- add_application_metadata(
 
 # Create a simple model with default model metadata
 simple_model <- calibrate(CBDA ~ spc,
-  data = NIRcannabis, preprocess = preprocess_recipe(),
+  data = proximateCannabis, preprocess = preprocess_recipe(),
   method = fit_plsr(5), control = calibration_control(),
   metadata = add_model_metadata(), verbose = FALSE
 )

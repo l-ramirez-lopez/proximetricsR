@@ -1,5 +1,5 @@
-data("NIRcannabis", package = "proximetricsR")
-X <- NIRcannabis$spc[c(5, 28), 100:150] # reduce to save memory
+data("proximateCannabis", package = "proximetricsR")
+X <- proximateCannabis$spc[c(5, 28), 100:150] # reduce to save memory
 
 # Round numeric results to 6 decimal places for platform-independent snapshots
 round_result <- function(x, digits = 6) {

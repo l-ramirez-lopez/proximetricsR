@@ -69,8 +69,8 @@
 #' \code{\link{prep_detrend}}, \code{\link{prep_transform}},
 #' \code{\link{prep_wav_trim}}
 #' @examples
-#' data("NIRcannabis")
-#' X <- NIRcannabis$spc
+#' data("proximateCannabis")
+#' X <- proximateCannabis$spc
 #'
 #' # SNV alone — no device needed (SNV is device-agnostic)
 #' recipe_snv <- preprocess_recipe(prep_snv())

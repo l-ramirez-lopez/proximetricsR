@@ -1,11 +1,11 @@
 # Test suite for proxiscout_write_model_info() and helper functions
 # Tests cover the main function, valid_nonzero and zero_if_invalid
 
-data("NIRcannabis", package = "proximetricsR")
+data("proximateCannabis", package = "proximetricsR")
 
 # Setup: Create a basic calibrated model for testing
 setup_model <- function() {
-  dat <- NIRcannabis[1:20, ]
+  dat <- proximateCannabis[1:20, ]
   dat$spc <- dat$spc[, seq(1, 234, by = 5)]
   control <- calibration_control(validation_type = "kfold", number = 3, seed = 42)
   recipe <- preprocess_recipe(

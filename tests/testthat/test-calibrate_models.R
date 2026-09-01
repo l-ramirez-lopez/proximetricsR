@@ -3,7 +3,7 @@
 # Shared setup: run calibrate_models() ONCE before all test_that blocks so
 # tests don't each pay the calibration cost.
 
-data("NIRcannabis", package = "proximetricsR")
+data("proximateCannabis", package = "proximetricsR")
 
 recipe1 <- preprocess_recipe(
   prep_resample(grid = c(1001, 1700, 2)),
@@ -20,7 +20,7 @@ ctrl <- calibration_control(validation_type = "kfold", number = 3, seed = 42)
 
 multi <- calibrate_models(
   formulas = list(THC ~ spc, CBD ~ spc),
-  data = NIRcannabis,
+  data = proximateCannabis,
   preprocess_recipes = list(recipe1, recipe2),
   methods = list(fit_plsr(3)),
   control = ctrl,
@@ -121,7 +121,7 @@ test_that("all_models is populated when save_all = TRUE", {
   skip_on_cran()
   multi_all <- calibrate_models(
     formulas = list(THC ~ spc),
-    data = NIRcannabis,
+    data = proximateCannabis,
     preprocess_recipes = list(recipe1),
     methods = list(fit_plsr(3)),
     control = ctrl,
@@ -150,7 +150,7 @@ test_that("selection column has exactly one TRUE per formula group", {
 # 12. predict.spectral_multimodel returns list with predictions and model_information
 # -----------------------------------------------------------------------
 
-preds <- predict(multi, NIRcannabis, verbose = FALSE)
+preds <- predict(multi, proximateCannabis, verbose = FALSE)
 
 test_that("predict.spectral_multimodel returns list with predictions and model_information", {
   skip_on_cran()
@@ -165,7 +165,7 @@ test_that("predict.spectral_multimodel returns list with predictions and model_i
 test_that("predictions is a matrix with correct dimensions", {
   skip_on_cran()
   expect_true(is.matrix(preds$predictions))
-  expect_equal(nrow(preds$predictions), nrow(NIRcannabis))
+  expect_equal(nrow(preds$predictions), nrow(proximateCannabis))
   expect_equal(ncol(preds$predictions), length(multi$final_models))
 })
 
@@ -188,7 +188,7 @@ test_that("calibrate_models errors when preprocess_recipes is missing", {
   expect_error(
     calibrate_models(
       formulas = list(THC ~ spc),
-      data = NIRcannabis,
+      data = proximateCannabis,
       methods = list(fit_plsr(3)),
       control = ctrl,
       verbose = FALSE
@@ -205,7 +205,7 @@ test_that("calibrate_models errors when formula variable is missing from data", 
   expect_error(
     calibrate_models(
       formulas = list(NONEXISTENT ~ spc),
-      data = NIRcannabis,
+      data = proximateCannabis,
       preprocess_recipes = list(recipe1),
       methods = list(fit_plsr(3)),
       control = ctrl,
@@ -225,7 +225,7 @@ test_that("calibrate_models errors when tuning_parameter is 'none'", {
   expect_error(
     calibrate_models(
       formulas = list(THC ~ spc),
-      data = NIRcannabis,
+      data = proximateCannabis,
       preprocess_recipes = list(recipe1),
       methods = list(fit_plsr(3)),
       control = ctrl_none,
@@ -245,7 +245,7 @@ test_that("calibrate_models warns for duplicated formulas", {
   expect_warning(
     calibrate_models(
       formulas = list(THC ~ spc, THC ~ spc),
-      data = NIRcannabis,
+      data = proximateCannabis,
       preprocess_recipes = list(recipe1),
       methods = list(fit_plsr(3)),
       control = ctrl,
@@ -264,7 +264,7 @@ test_that("calibrate_models warns for duplicated preprocess_recipes", {
   expect_warning(
     calibrate_models(
       formulas = list(THC ~ spc),
-      data = NIRcannabis,
+      data = proximateCannabis,
       preprocess_recipes = list(recipe1, recipe1),
       methods = list(fit_plsr(3)),
       control = ctrl,

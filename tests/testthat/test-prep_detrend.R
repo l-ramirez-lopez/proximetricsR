@@ -1,5 +1,5 @@
-data("NIRcannabis")
-X <- NIRcannabis$spc
+data("proximateCannabis")
+X <- proximateCannabis$spc
 
 # ─── constructor: class and structure ─────────────────────────────────────────
 

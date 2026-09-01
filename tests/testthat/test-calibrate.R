@@ -1,7 +1,7 @@
-data("NIRcannabis", package = "proximetricsR")
+data("proximateCannabis", package = "proximetricsR")
 
 # Setup for checking if model is as expected.
-dat <- NIRcannabis[1:40, ] # reduce number of samples
+dat <- proximateCannabis[1:40, ] # reduce number of samples
 dat$spc <- dat$spc[, seq(1, 234, by = 5)]
 X <- dat$spc # reduced number of samples
 rownames(X) <- 1:40
@@ -353,11 +353,11 @@ test_that("The number of observations in each CV segment must be large enough", 
 })
 
 test_that("Predictor variables must be contained in the data", {
-  expect_error(calibrate(X ~ Y, data = NIRcannabis, method = method), "Predictor variables not found in data.")
+  expect_error(calibrate(X ~ Y, data = proximateCannabis, method = method), "Predictor variables not found in data.")
 })
 
 test_that("A method must be given", {
-  expect_error(calibrate(X ~ Y, data = NIRcannabis), "'method' is missing")
+  expect_error(calibrate(X ~ Y, data = proximateCannabis), "'method' is missing")
 })
 
 test_that("Data should be of class 'proximate_data' or 'proxiscout_data', column names of X must be convertible to numerics", {

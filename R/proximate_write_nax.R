@@ -107,12 +107,12 @@
 #'
 #' @examples
 #' \donttest{
-#' data("NIRcannabis")
+#' data("proximateCannabis")
 #' control <- calibration_control(validation_type = "kfold", number = 3, folds = "sequential")
 #' # Models for application files must have model metadata!
 #' model_metadata <- add_model_metadata(unit = "%")
 #' modell <- calibrate(CBDA ~ spc,
-#'   data = NIRcannabis, preprocess = preprocess_recipe(),
+#'   data = proximateCannabis, preprocess = preprocess_recipe(),
 #'   method = fit_plsr(15), control = control,
 #'   metadata = model_metadata, verbose = FALSE
 #' )
@@ -130,7 +130,7 @@
 #'
 #' # Another model
 #' modelr <- calibrate(THCA ~ spc,
-#'   data = NIRcannabis, preprocess = preprocess_recipe(),
+#'   data = proximateCannabis, preprocess = preprocess_recipe(),
 #'   method = fit_plsr(15), control = control,
 #'   metadata = model_metadata, verbose = FALSE
 #' )

@@ -1,7 +1,7 @@
 # Test suite for proximate_recalibrate_nax()
 # Tests cover recalibration of ProxiMate nax application files
 
-data("NIRcannabis", package = "proximetricsR")
+data("proximateCannabis", package = "proximetricsR")
 
 # ============================================================================
 # Test group 1: Basic input validation

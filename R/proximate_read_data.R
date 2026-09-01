@@ -19,15 +19,15 @@
 #' @author Leonardo Ramirez-Lopez
 #'
 #' @examples
-#' data("NIRcannabis")
-#' filename <- paste0(tempdir(), "/NIRcannabis.tsv")
+#' data("proximateCannabis")
+#' filename <- paste0(tempdir(), "/proximateCannabis.tsv")
 #' # Need to produce a tsv file before we can read it
 #' proximate_write_data(
-#'   x = NIRcannabis,
+#'   x = proximateCannabis,
 #'   file = filename,
 #'   properties = c("CBDA", "THCA", "CBD", "THC")
 #' )
-#' # Equivalent to dataset NIRcannabis
+#' # Equivalent to dataset proximateCannabis
 #' dat <- proximate_read_data(filename)
 #' @export
 proximate_read_data <- function(file) {

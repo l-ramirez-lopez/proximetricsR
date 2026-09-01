@@ -1,14 +1,14 @@
-data("NIRcannabis", package = "proximetricsR")
+data("proximateCannabis", package = "proximetricsR")
 
-# Build a simple flat data.frame from NIRcannabis for round-trip testing.
+# Build a simple flat data.frame from proximateCannabis for round-trip testing.
 # Non-spectral columns: ID and THC.
 # Spectral columns prefixed with "X" so we can test both prefix and numeric-only paths.
-spc_mat <- NIRcannabis$spc
+spc_mat <- proximateCannabis$spc
 colnames(spc_mat) <- paste0("X", colnames(spc_mat))
 
 base_df <- data.frame(
-  ID = NIRcannabis$ID,
-  THC = NIRcannabis$THC,
+  ID = proximateCannabis$ID,
+  THC = proximateCannabis$THC,
   spc_mat,
   check.names = FALSE
 )
@@ -18,9 +18,9 @@ write.table(base_df, file = tmp_tab, sep = "\t", row.names = FALSE)
 
 # A second version without the "X" prefix so we can test numeric-column detection.
 base_df_noprefix <- data.frame(
-  ID = NIRcannabis$ID,
-  THC = NIRcannabis$THC,
-  NIRcannabis$spc,
+  ID = proximateCannabis$ID,
+  THC = proximateCannabis$THC,
+  proximateCannabis$spc,
   check.names = FALSE
 )
 
@@ -116,7 +116,7 @@ test_that("spc column names have leading letters stripped when using spectra_pre
 test_that("spc column names without a prefix are unchanged (no letters to strip)", {
   result <- read_spc(tmp_noprefix)
   # When column names are already numeric strings, stripping letters is a no-op.
-  expect_equal(colnames(result$spc), colnames(NIRcannabis$spc))
+  expect_equal(colnames(result$spc), colnames(proximateCannabis$spc))
 })
 
 # ─── 8. Error when spectra_prefix is not character ────────────────────────────

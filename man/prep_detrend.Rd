@@ -36,8 +36,8 @@ The computation is delegated to \code{\link[prospectr]{detrend}} with
 \code{snv = FALSE}.
 }
 \examples{
-data("NIRcannabis")
-X <- NIRcannabis$spc
+data("proximateCannabis")
+X <- proximateCannabis$spc
 
 # Pure polynomial detrend
 dt <- prep_detrend(p = 2)

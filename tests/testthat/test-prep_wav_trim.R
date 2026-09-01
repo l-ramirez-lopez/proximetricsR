@@ -1,7 +1,7 @@
 # Test suite for prep_wav_trim() preprocessing constructor
 # Tests cover the constructor and internal execution function .exec_wav_trim()
 
-data("NIRcannabis", package = "proximetricsR")
+data("proximateCannabis", package = "proximetricsR")
 
 # ============================================================================
 # Test group 1: Constructor validation and return type
@@ -131,7 +131,7 @@ test_that("prep_wav_trim errors when trim_constant_edges has length > 1", {
 
 test_that("band trimming retains columns within specified range", {
   skip_on_cran()
-  X <- NIRcannabis$spc[1:10, ] # Reduced dataset
+  X <- proximateCannabis$spc[1:10, ] # Reduced dataset
   step <- prep_wav_trim(band = c(1200, 1600))
 
   result <- proximetricsR:::.exec_wav_trim(X, step)
@@ -142,7 +142,7 @@ test_that("band trimming retains columns within specified range", {
 
 test_that("band trimming with empty vector skips trimming", {
   skip_on_cran()
-  X <- NIRcannabis$spc[1:10, ]
+  X <- proximateCannabis$spc[1:10, ]
   step <- prep_wav_trim(band = c())
 
   result <- proximetricsR:::.exec_wav_trim(X, step)
@@ -154,7 +154,7 @@ test_that("band trimming with empty vector skips trimming", {
 
 test_that("band trimming reduces number of columns", {
   skip_on_cran()
-  X <- NIRcannabis$spc[1:10, ]
+  X <- proximateCannabis$spc[1:10, ]
   original_cols <- ncol(X)
 
   step <- prep_wav_trim(band = c(1200, 1600))
@@ -165,7 +165,7 @@ test_that("band trimming reduces number of columns", {
 
 test_that("band trimming warns when no columns fall within range", {
   skip_on_cran()
-  X <- NIRcannabis$spc[1:10, ]
+  X <- proximateCannabis$spc[1:10, ]
   # Use a range that doesn't match the data
   step <- prep_wav_trim(band = c(10000, 20000))
 
@@ -178,7 +178,7 @@ test_that("band trimming warns when no columns fall within range", {
 
 test_that("band trimming preserves row names", {
   skip_on_cran()
-  X <- NIRcannabis$spc[1:10, ]
+  X <- proximateCannabis$spc[1:10, ]
   step <- prep_wav_trim(band = c(1200, 1600))
 
   result <- proximetricsR:::.exec_wav_trim(X, step)
@@ -188,7 +188,7 @@ test_that("band trimming preserves row names", {
 
 test_that("band trimming preserves row data correctly", {
   skip_on_cran()
-  X <- NIRcannabis$spc[1:10, ]
+  X <- proximateCannabis$spc[1:10, ]
   wavs <- as.numeric(colnames(X))
   in_range <- which(wavs >= 1200 & wavs <= 1600)
 
@@ -284,7 +284,7 @@ test_that("constant edge trimming is skipped when ncol <= 3", {
 
 test_that("band and edge trimming work together", {
   skip_on_cran()
-  X <- NIRcannabis$spc[1:10, ]
+  X <- proximateCannabis$spc[1:10, ]
   step <- prep_wav_trim(band = c(1200, 1600), trim_constant_edges = TRUE)
 
   result <- proximetricsR:::.exec_wav_trim(X, step)
@@ -299,7 +299,7 @@ test_that("band and edge trimming work together", {
 
 test_that("trimming preserves numeric data type", {
   skip_on_cran()
-  X <- NIRcannabis$spc[1:10, ]
+  X <- proximateCannabis$spc[1:10, ]
   step <- prep_wav_trim(band = c(1200, 1600))
 
   result <- proximetricsR:::.exec_wav_trim(X, step)
@@ -310,7 +310,7 @@ test_that("trimming preserves numeric data type", {
 
 test_that("trimming preserves column names as numeric strings", {
   skip_on_cran()
-  X <- NIRcannabis$spc[1:10, ]
+  X <- proximateCannabis$spc[1:10, ]
   step <- prep_wav_trim(band = c(1200, 1600))
 
   result <- proximetricsR:::.exec_wav_trim(X, step)
@@ -333,7 +333,7 @@ test_that("prep_wav_trim integrates with preprocess_recipe", {
 
 test_that("prep_wav_trim can be used with process function", {
   skip_on_cran()
-  X <- NIRcannabis$spc[1:5, ]
+  X <- proximateCannabis$spc[1:5, ]
   trim_step <- prep_wav_trim(band = c(1200, 1600))
   recipe <- preprocess_recipe(trim_step, device = "proxiscout")
 
@@ -345,7 +345,7 @@ test_that("prep_wav_trim can be used with process function", {
 
 test_that("prep_wav_trim works in multi-step recipe", {
   skip_on_cran()
-  X <- NIRcannabis$spc[1:5, ]
+  X <- proximateCannabis$spc[1:5, ]
   recipe <- preprocess_recipe(
     prep_wav_trim(band = c(1200, 1600)),
     prep_snv(),
@@ -393,7 +393,7 @@ test_that("trimming warns when column names are not numeric", {
 
 test_that("trimming at exact wavenumber boundaries works", {
   skip_on_cran()
-  X <- NIRcannabis$spc[1:5, ]
+  X <- proximateCannabis$spc[1:5, ]
   wavs <- as.numeric(colnames(X))
   min_wav <- wavs[1]
   max_wav <- wavs[length(wavs)]
@@ -409,7 +409,7 @@ test_that("trimming at exact wavenumber boundaries works", {
 
 test_that("trimming with band narrower than data works", {
   skip_on_cran()
-  X <- NIRcannabis$spc[1:5, ]
+  X <- proximateCannabis$spc[1:5, ]
   step <- prep_wav_trim(band = c(1200, 1500))
 
   result <- proximetricsR:::.exec_wav_trim(X, step)
@@ -420,7 +420,7 @@ test_that("trimming with band narrower than data works", {
 
 test_that("trimming with band wider than data includes all columns", {
   skip_on_cran()
-  X <- NIRcannabis$spc[1:5, ]
+  X <- proximateCannabis$spc[1:5, ]
   wavs <- as.numeric(colnames(X))
 
   step <- prep_wav_trim(band = c(min(wavs) - 100, max(wavs) + 100))

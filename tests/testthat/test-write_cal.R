@@ -1,4 +1,4 @@
-data("NIRcannabis", package = "proximetricsR")
+data("proximateCannabis", package = "proximetricsR")
 
 gen_cal_file_from_model <- function(object, application_name, property_name) {
   temporary_dir <- tempdir()
@@ -52,8 +52,8 @@ gen_cal_file_from_model <- function(object, application_name, property_name) {
 }
 
 test_that("Writing calibration files works on refitted models with kfold sampling", {
-  dat <- NIRcannabis[seq(2, 80, by = 3), ]
-  dat <- dat[, !colnames(NIRcannabis) %in% c("CBDA", "CBD", "THCA")]
+  dat <- proximateCannabis[seq(2, 80, by = 3), ]
+  dat <- dat[, !colnames(proximateCannabis) %in% c("CBDA", "CBD", "THCA")]
   dat$spc <- dat$spc[, seq(2, 234, by = 10)]
   dat$SRN <- dat$SNR
   dat$SNR <- NULL
@@ -80,8 +80,8 @@ test_that("Writing calibration files works on refitted models with kfold samplin
 })
 
 test_that("Writing calibration files works on fitted models with stratified sampling", {
-  dat <- NIRcannabis[seq(1, 80, by = 3), ]
-  dat <- dat[, !colnames(NIRcannabis) %in% c("CBDA", "THC", "THCA")]
+  dat <- proximateCannabis[seq(1, 80, by = 3), ]
+  dat <- dat[, !colnames(proximateCannabis) %in% c("CBDA", "THC", "THCA")]
   dat$spc <- dat$spc[, seq(1, 234, by = 10)]
   method <- fit_plsr(5, "modified")
   control <- calibration_control(

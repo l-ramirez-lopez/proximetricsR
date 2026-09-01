@@ -1,4 +1,4 @@
-data("NIRcannabis", package = "proximetricsR")
+data("proximateCannabis", package = "proximetricsR")
 
 gen_rtf_file_from_model <- function(object, application_name, property_name) {
   temporary_dir <- tempdir()
@@ -62,8 +62,8 @@ gen_rtf_file_from_model <- function(object, application_name, property_name) {
 
 test_that("Writing report files works on refitted models without validation", {
   skip_on_cran()
-  dat <- NIRcannabis[1:40, ]
-  dat <- dat[, !colnames(NIRcannabis) %in% c("CBDA", "CBD", "THCA")]
+  dat <- proximateCannabis[1:40, ]
+  dat <- dat[, !colnames(proximateCannabis) %in% c("CBDA", "CBD", "THCA")]
   dat$spc <- dat$spc[, seq(1, 234, by = 15)]
   dat$SRN <- dat$SNR
   dat$SNR <- NULL

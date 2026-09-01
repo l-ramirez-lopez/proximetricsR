@@ -69,8 +69,8 @@ These are stored internally for device file serialization and are not
 user-facing parameters.
 }
 \examples{
-data("NIRcannabis")
-X <- NIRcannabis$spc
+data("proximateCannabis")
+X <- proximateCannabis$spc
 
 # Savitzky-Golay first derivative, window 11, polynomial order 3
 sg <- prep_derivative(m = 1, w = 11, p = 3, algorithm = "savitzky-golay")

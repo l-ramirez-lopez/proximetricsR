@@ -307,9 +307,9 @@
 #'
 #' @examples
 #' \donttest{
-#' data("NIRcannabis")
+#' data("proximateCannabis")
 #' simple_model <- calibrate(CBDA ~ spc,
-#'   data = NIRcannabis, preprocess = preprocess_recipe(prep_snv()),
+#'   data = proximateCannabis, preprocess = preprocess_recipe(prep_snv()),
 #'   method = fit_xlsr(5), control = calibration_control("kfold"),
 #'   verbose = FALSE
 #' )
@@ -327,20 +327,20 @@
 #' # With formula
 #' complex_model_formula <- calibrate(
 #'   CBDA ~ spc,
-#'   data = NIRcannabis, preprocess = pretreats, method = method,
+#'   data = proximateCannabis, preprocess = pretreats, method = method,
 #'   control = control, skip_indices = skip_indices, verbose = FALSE
 #' )
 #' # Default, need care with Y
-#' Y <- matrix(NIRcannabis$CBDA)
+#' Y <- matrix(proximateCannabis$CBDA)
 #' colnames(Y) <- "CBDA"
 #' complex_model_default <- calibrate(
-#'   X = NIRcannabis$spc, Y = Y, data = NIRcannabis, preprocess = pretreats,
+#'   X = proximateCannabis$spc, Y = Y, data = proximateCannabis, preprocess = pretreats,
 #'   method = method, control = control, skip_indices = skip_indices, verbose = FALSE
 #' )
 #'
 #' # Predict the skipped indices
 #' predict(complex_model_formula,
-#'   newdata = NIRcannabis[skip_indices, ],
+#'   newdata = proximateCannabis[skip_indices, ],
 #'   ncomp = complex_model_formula$final_ncomp,
 #'   verbose = FALSE
 #' )

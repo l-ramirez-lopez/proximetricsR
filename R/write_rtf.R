@@ -39,10 +39,10 @@
 #' way.
 #'
 #' @examples
-#' data("NIRcannabis")
+#' data("proximateCannabis")
 #' control <- calibration_control(validation_type = "kfold", number = 3, folds = "sequential")
 #' modell <- calibrate(CBDA ~ spc,
-#'   data = NIRcannabis, preprocess = preprocess_recipe(),
+#'   data = proximateCannabis, preprocess = preprocess_recipe(),
 #'   method = fit_plsr(15), control = control, verbose = FALSE
 #' )
 #'

@@ -1,8 +1,8 @@
-data("NIRcannabis", package = "proximetricsR")
+data("proximateCannabis", package = "proximetricsR")
 
 test_that("Calibration statistics without CV is as expected", {
-  X <- NIRcannabis$spc[20:40, ] # reduced number of samples
-  Y <- matrix(NIRcannabis$CBD[20:40], dimnames = list(1:21, "CBDA"))
+  X <- proximateCannabis$spc[20:40, ] # reduced number of samples
+  Y <- matrix(proximateCannabis$CBD[20:40], dimnames = list(1:21, "CBDA"))
   model_basic <- .estimate_model(X, Y, fit_plsr(5))
   cal_stats <- .calibration_statistics(
     Y, model_basic$fitted_y,
@@ -26,7 +26,7 @@ test_that("Calibration statistics without CV is as expected", {
 })
 
 test_that("Calibration statistics with CV is as expected", {
-  dat <- NIRcannabis[15:34, ]
+  dat <- proximateCannabis[15:34, ]
   control <- calibration_control(validation_type = "kfold", number = 3, folds = "sequential")
   X <- dat$spc
   Y <- matrix(dat$THC, dimnames = list(1:20, "THC"))

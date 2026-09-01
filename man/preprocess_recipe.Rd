@@ -68,8 +68,8 @@ preprocessing steps into a recipe, while \code{process} executes the
 recipe on a spectral data matrix.
 }
 \examples{
-data("NIRcannabis")
-X <- NIRcannabis$spc
+data("proximateCannabis")
+X <- proximateCannabis$spc
 
 # SNV alone — no device needed (SNV is device-agnostic)
 recipe_snv <- preprocess_recipe(prep_snv())

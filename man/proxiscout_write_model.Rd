@@ -62,7 +62,7 @@ selection and does not produce an explicit JSON step.
 }
 \examples{
 \donttest{
-data("NIRcannabis")
+data("proximateCannabis")
 control <- calibration_control(
   validation_type = "kfold", number = 3, folds = "sequential"
 )
@@ -74,7 +74,7 @@ recipe <- preprocess_recipe(
 )
 model <- calibrate(
   THCA ~ spc,
-  data = NIRcannabis, preprocess = recipe,
+  data = proximateCannabis, preprocess = recipe,
   method = fit_plsr(10), control = control, verbose = FALSE
 )
 

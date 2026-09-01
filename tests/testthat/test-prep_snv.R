@@ -1,5 +1,5 @@
-data("NIRcannabis", package = "proximetricsR")
-X <- NIRcannabis$spc[5:15, seq(1, 200, by = 5)] # reduce to save memory
+data("proximateCannabis", package = "proximetricsR")
+X <- proximateCannabis$spc[5:15, seq(1, 200, by = 5)] # reduce to save memory
 
 test_that("Standard normal variate returns correct values", {
   expect_snapshot(process(X, prep_snv()))

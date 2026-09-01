@@ -1,5 +1,5 @@
-data("NIRcannabis", package = "proximetricsR")
-X <- NIRcannabis$spc[1:2, 100:150] # reduce to save memory
+data("proximateCannabis", package = "proximetricsR")
+X <- proximateCannabis$spc[1:2, 100:150] # reduce to save memory
 derivative_noX <- prep_derivative(m = 1, w = 3, p = 7, algorithm = "nwp")
 
 # Round numeric results to 6 decimal places for platform-independent snapshots
