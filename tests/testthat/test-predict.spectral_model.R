@@ -155,7 +155,7 @@ test_that("Mahalanobis distance collapses to the squared scaled score for a sing
   ref_scaled_scores <- model_form$final_model$model$scaled_scores[, 1]
   new_scaled_scores <- predictions_1comp$scores[, 1] / model_form$final_model$model$sd_scores[1]
   expected <- new_scaled_scores^2 / var(ref_scaled_scores)
-  expect_equal(unname(predictions_1comp$mahalanobis[, 1]), unname(expected), tolerance = 1e-10)
+  expect_equal(unname(predictions_1comp$mahalanobis[, 1]), unname(expected), tolerance = 1e-8)
 })
 
 test_that("Spectral (Q) residual of predictions with formula from a data.frame has the correct shape and values", {
@@ -266,10 +266,13 @@ test_that("Predictions are the same for matrix/data.frame as newdata", {
     predictions_mat_form$model_information$model_grid,
     predictions_df_form$model_information$model_grid[6, , drop = FALSE]
   )
+  # The two calls differ only in the shape of the coefficient matrix passed to
+  # the matrix product, so the results agree up to BLAS-dependent rounding
+  # rather than bit for bit.
   expect_equal(
     unname(predictions_mat_form$predictions),
     unname(predictions_df_form$predictions[, 6, drop = FALSE]),
-    tolerance = 1e-14
+    tolerance = 1e-8
   )
 })
 
@@ -285,7 +288,7 @@ test_that("Predictions are the same for model with matrices/model with formula",
   expect_equal(
     predictions_df_mat$predictions,
     predictions_df_form$predictions[, 4, drop = FALSE],
-    tolerance = 1e-14
+    tolerance = 1e-8
   )
 })
 
