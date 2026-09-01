@@ -65,7 +65,6 @@ Suggests:
     testthat,
     covr,
     doParallel,
-    parallel, 
     pkgload
 LinkingTo: 
     Rcpp, 
