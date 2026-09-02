@@ -2,7 +2,7 @@ Package: proximetricsR
 Type: Package
 Title: Spectral Preprocessing and Chemometric Calibration of NIR Sensors
 Version: 0.7.1
-Date: 2026-08-19
+Date: 2026-09-01
 Authors@R: c(
     person(given = "Leonardo",
            family = "Ramirez-Lopez",
@@ -65,7 +65,6 @@ Suggests:
     testthat,
     covr,
     doParallel,
-    parallel, 
     pkgload
 LinkingTo: 
     Rcpp, 

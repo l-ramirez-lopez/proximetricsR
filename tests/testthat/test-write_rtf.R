@@ -61,6 +61,9 @@ gen_rtf_file_from_model <- function(object, application_name, property_name) {
 }
 
 test_that("Writing report files works on refitted models without validation", {
+  # Announced before the skip so the snapshot is not reported as unused where
+  # the test does not run.
+  announce_snapshot_file(name = "test_rtf1.THC.rtf")
   skip_on_cran()
   dat <- proximateCannabis[1:40, ]
   dat <- dat[, !colnames(proximateCannabis) %in% c("CBDA", "CBD", "THCA")]
@@ -85,7 +88,6 @@ test_that("Writing report files works on refitted models without validation", {
 
   gen_rtf_file <- gen_rtf_file_from_model(test_model, "test_rtf1", property_name = "THC")
 
-  announce_snapshot_file(gen_rtf_file, name = "test_rtf1.THC.rtf")
   expect_snapshot_file(gen_rtf_file, compare = compare_file_text)
 })
 
