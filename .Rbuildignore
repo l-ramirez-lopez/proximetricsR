@@ -28,7 +28,7 @@
 ^CRAN_STATUS_UPDATED\.md$
 ^CRAN_SUBMISSION_SUMMARY\.md$
 ^rhub\.yml$
-^CCITATION\.cff$
+^CITATION\.cff$
 
 ^\.Rhistory$
 ^\.RData$
