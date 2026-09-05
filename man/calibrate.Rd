@@ -25,7 +25,12 @@
           verbose = TRUE,
           ...)
 
-\method{predict}{spectral_model}(object, newdata, ncomp = object$final_ncomp, verbose = TRUE, control_limit_conf = 0.99, ...)
+\method{predict}{spectral_model}(object, 
+         newdata, 
+         ncomp = object$final_ncomp, 
+         verbose = TRUE, 
+         control_limit_conf = 0.99, 
+         ...)
 }
 \arguments{
 \item{...}{not currently used.}
